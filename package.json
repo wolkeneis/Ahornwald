@@ -1,0 +1,71 @@
+{
+  "name": "@wolkeneis/<<NAME>>",
+  "version": "0.0.0",
+  "private": true,
+  "description": "<<NAME>>",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wolkeneis/<<NAME>>.git"
+  },
+  "author": "Frooastside <frooastside@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/wolkeneis/<<NAME>>/issues"
+  },
+  "homepage": "https://<<NAME>>.wolkeneis.dev/",
+  "engines": {
+    "node": "*",
+    "vscode": "^1.22.0",
+    "npm": "^8.x.x",
+    "pnpm": "7.x.x"
+  },
+  "main": "<<MAIN>>",
+  "bin": {},
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint --ext ts,jsx,tsx .",
+    "lint:fix": "eslint --fix --ext ts,jsx,tsx .",
+    "pretty": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/prop-types": "^15.7.5",
+    "@types/react": "^18.0.14",
+    "@types/react-dom": "^18.0.5",
+    "@types/react-redux": "^7.1.24",
+    "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^5.28.0",
+    "@typescript-eslint/parser": "^5.28.0",
+    "@vitejs/plugin-react": "^1.3.2",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-react": "^7.30.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.2",
+    "prettier": "2.7.1",
+    "sass": "^1.52.3",
+    "typescript": "^4.7.4",
+    "vite": "^2.9.12"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@fontsource/roboto": "^4.5.7",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.8.4",
+    "@reduxjs/toolkit": "^1.8.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.2",
+    "react-router-dom": "^6.3.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx}": "eslint --ext ts,jsx,tsx --cache --fix",
+    "*.{js,ts,jsx,tsx,css,md,json}": "prettier --write"
+  }
+}
