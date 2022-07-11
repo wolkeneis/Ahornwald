@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 import { dependencies } from "./package.json";
 
 function renderChunks(dependencies: Record<string, string>) {
@@ -20,7 +21,7 @@ export default defineConfig({
       clientPort: 443
     }
   },
-  plugins: [react()],
+  plugins: [react(), VitePWA({ registerType: "prompt" })],
   build: {
     rollupOptions: {
       output: {
