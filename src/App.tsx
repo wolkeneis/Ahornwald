@@ -1,10 +1,11 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useEffect, useState } from "react";
-import { Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+import Content from "./components/content/Content";
 import LinkBehavior from "./components/LinkBehavior";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
-import { selectTheme } from "./redux/interfaceSlice";
+import { selectTheme, setDrawerOpen, setMobile } from "./redux/interfaceSlice";
 
 const darkTheme = createTheme({
   palette: {
@@ -57,7 +58,10 @@ function App() {
     }
     const mobile: boolean =
       (navigator as NewNavigator).userAgentData?.mobile || operatingSystem === "android" || operatingSystem === "ios";
-    console.log(`Mobile: ${mobile}`);
+    dispatch(setMobile(mobile));
+    if (!mobile) {
+      dispatch(setDrawerOpen(true));
+    }
   }, [dispatch]);
 
   useEffect(() => {
@@ -70,7 +74,9 @@ function App() {
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
-      <Routes></Routes>
+      <Routes>
+        <Route element={<Content />} path="*" />
+      </Routes>
     </ThemeProvider>
   );
 }
