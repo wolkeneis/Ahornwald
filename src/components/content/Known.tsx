@@ -1,18 +1,4 @@
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  CardMedia,
-  CircularProgress,
-  FormControlLabel,
-  Snackbar,
-  Switch
-} from "@mui/material";
+import { Alert, Avatar, Box, Card, CardHeader, CardMedia, CircularProgress, Snackbar } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setFriendErrorVisible } from "../../redux/interfaceSlice";
 import LoginRequired from "../LoginRequired";
