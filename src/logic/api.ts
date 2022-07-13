@@ -188,6 +188,24 @@ export async function patchProfile(
   return _csrfFetch("/profile", parameters, { method: "PATCH" }).then((response) => response.ok);
 }
 
+export async function fetchKnown(
+  parameters: v1.operations["post-profile-known"]["requestBody"]["content"]["application/json"]
+): Promise<v1.KnownUserProfile | null> {
+  return _csrfFetch("/profile/known", parameters, { method: "POST" }).then((response) => response.json());
+}
+
+export async function addKnown(
+  parameters: v1.operations["put-profile-known"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return _csrfFetch("/profile/known", parameters, { method: "PUT" }).then((response) => response.ok);
+}
+
+export async function removeKnown(
+  parameters: v1.operations["delete-profile-known"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return _csrfFetch("/profile/known", parameters, { method: "DELETE" }).then((response) => response.ok);
+}
+
 export async function requestSessionCookie(idToken: string): Promise<boolean> {
   const body: v1.operations["request-session"]["requestBody"]["content"]["application/json"] = {
     token: idToken
