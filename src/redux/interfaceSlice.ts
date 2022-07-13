@@ -5,13 +5,17 @@ interface InterfaceState {
   mobile: boolean;
   drawerOpen: boolean;
   drawerWidth: number;
+  loginRequiredVisible: boolean;
+  friendErrorVisible: boolean;
 }
 
 const initialState: InterfaceState = {
   theme: "dark-theme",
   mobile: false,
   drawerOpen: false,
-  drawerWidth: 240
+  drawerWidth: 240,
+  loginRequiredVisible: false,
+  friendErrorVisible: false
 };
 
 export const interfaceSlice: Slice = createSlice({
@@ -37,6 +41,14 @@ export const interfaceSlice: Slice = createSlice({
     },
     setDrawerWidth: (state, action: PayloadAction<number>) => {
       state.drawerWidth = action.payload;
+    },
+
+    setLoginRequiredVisible(state, action: PayloadAction<boolean>) {
+      state.loginRequiredVisible = action.payload;
+    },
+
+    setFriendErrorVisible(state, action: PayloadAction<boolean>) {
+      state.friendErrorVisible = action.payload;
     }
   }
 });
@@ -44,5 +56,6 @@ export const interfaceSlice: Slice = createSlice({
 export const { selectTheme, toggleTheme } = interfaceSlice.actions;
 export const { setMobile } = interfaceSlice.actions;
 export const { setDrawerOpen, toggleDrawer, setDrawerWidth } = interfaceSlice.actions;
+export const { setLoginRequiredVisible, setFriendErrorVisible } = interfaceSlice.actions;
 
 export default interfaceSlice.reducer;
