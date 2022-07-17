@@ -43,7 +43,7 @@ function App() {
     if (storedTheme) {
       dispatch(selectTheme(storedTheme === "light-theme" ? "light-theme" : "dark-theme"));
     }
-    const userAgent = navigator.userAgent;
+    const userAgent = (navigator as NewNavigator).userAgentData?.platform ?? navigator.userAgent;
     let operatingSystem: string;
     if (/android/i.test(userAgent)) {
       operatingSystem = "android";
@@ -82,8 +82,9 @@ function App() {
 }
 
 interface NewNavigator extends Navigator {
-  userAgentData: {
+  userAgentData?: {
     mobile: boolean;
+    platform: string;
   };
 }
 

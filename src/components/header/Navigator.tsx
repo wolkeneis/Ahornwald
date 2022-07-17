@@ -1,11 +1,12 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import {
   Divider,
   IconButton,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   styled,
@@ -13,14 +14,15 @@ import {
   Typography,
   useTheme
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { toggleDrawer } from "../../redux/interfaceSlice";
-import LinkBehavior from "../LinkBehavior";
 
 const Navigator = () => {
   const drawerOpen = useAppSelector((state) => state.interface.drawerOpen);
   const drawerWidth = useAppSelector((state) => state.interface.drawerWidth);
   const mobile = useAppSelector((state) => state.interface.mobile);
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const theme = useTheme();
 
@@ -45,18 +47,24 @@ const Navigator = () => {
       variant={mobile ? "temporary" : "persistent"}
     >
       <DrawerHeader>
-        <IconButton onClick={() => dispatch(toggleDrawer(null))}>
+        <IconButton aria-label="Close Navigator Tab" onClick={() => dispatch(toggleDrawer(null))}>
           {theme.direction === "ltr" ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
       </DrawerHeader>
       <Divider />
-      <List>
-        <ListItem button component={LinkBehavior} href="/known">
+      <List component="nav">
+        <ListItemButton aria-label="Home Navigator Button" onClick={() => navigate("/")}>
+          <ListItemIcon>
+            <HomeIcon />
+          </ListItemIcon>
+          <ListItemText primary="Home" />
+        </ListItemButton>
+        <ListItemButton aria-label="Friendlist Navigator Button" onClick={() => navigate("/friends")}>
           <ListItemIcon>
             <PeopleIcon />
           </ListItemIcon>
-          <ListItemText primary="Known People" />
-        </ListItem>
+          <ListItemText primary="Friendlist" />
+        </ListItemButton>
       </List>
       <Divider />
       <Typography

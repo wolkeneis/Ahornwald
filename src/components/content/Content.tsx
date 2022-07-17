@@ -1,7 +1,9 @@
 import { styled } from "@mui/material";
-import { Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { useAppSelector } from "../../redux/hooks";
 import Header from "../header/Header";
+import Friends from "./Friends";
+import Home from "./Home";
 
 const Content = () => {
   const drawerOpen = useAppSelector((state) => state.interface.drawerOpen);
@@ -13,7 +15,10 @@ const Content = () => {
       <Header />
       <Main drawerOpen={drawerOpen} drawerWidth={drawerWidth} mobile={mobile}>
         <HeaderSpacer />
-        <Routes></Routes>
+        <Routes>
+          <Route element={<Home />} path="/" />
+          <Route element={<Friends />} path="/friends" />
+        </Routes>
         <HeaderSpacer />
       </Main>
     </>
