@@ -1,6 +1,6 @@
 {
   "name": "ahornwald",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Ahornwald",
   "keywords": [],
@@ -32,7 +32,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/node": "^18.0.5",
     "@types/prop-types": "^15.7.5",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
@@ -40,16 +40,17 @@
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
-    "@vitejs/plugin-react": "^1.3.2",
-    "eslint": "^8.18.0",
+    "@vitejs/plugin-react": "^2.0.0",
+    "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-react": "^7.30.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.2",
+    "moos-api": "^0.5.0",
     "prettier": "2.7.1",
     "sass": "^1.52.3",
     "typescript": "^4.7.4",
-    "vite": "^2.9.12",
+    "vite": "^3.0.0",
     "vite-plugin-pwa": "^0.12.3"
   },
   "dependencies": {
@@ -57,10 +58,8 @@
     "@emotion/styled": "^11.9.3",
     "@fontsource/roboto": "^4.5.7",
     "@mui/icons-material": "^5.8.4",
-    "@mui/lab": "5.0.0-alpha.90",
     "@mui/material": "^5.9.0",
     "@reduxjs/toolkit": "^1.8.2",
-    "moos-api": "^0.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.2",
