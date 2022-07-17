@@ -2,231 +2,325 @@ import { type v1 } from "moos-api";
 import { setCSRFToken } from "../redux/sessionSlice";
 import { store } from "../redux/store";
 
-export async function fetchCollection(
-  options: v1.operations["post-profile-collection"]["requestBody"]["content"]["application/json"]
-): Promise<v1.SeasonGroup | null> {
+export async function fetchProfile(): Promise<v1.UserProfile | null> {
   return (
-    ((await _csrfFetch("/profile/collection", options, { method: "POST" }).then((response) =>
+    ((await _csrfFetch("/profile", undefined, undefined, { method: "POST" }).then((response) =>
       response.json()
-    )) as v1.SeasonGroup) ?? null
+    )) as v1.operations["fetch-profile"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
 }
 
-export async function createCollection(
-  options: v1.operations["put-profile-collection"]["requestBody"]["content"]["application/json"]
-): Promise<v1.SeasonGroup | null> {
+export async function patchProfile(
+  body: v1.operations["patch-profile"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return (await _csrfFetch("/profile", undefined, body, { method: "PATCH" }).then((response) => response.ok)) ?? false;
+}
+
+export async function fetchApplications(): Promise<v1.Application[] | null> {
   return (
-    ((await _csrfFetch("/profile/collection", options, { method: "PUT" }).then((response) =>
+    ((await _csrfFetch("/profile/applications", undefined, undefined, { method: "POST" }).then((response) =>
       response.json()
-    )) as v1.SeasonGroup) ?? null
+    )) as v1.operations["post-profile-applications"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
 }
 
-export async function updateCollection(
-  options: v1.operations["patch-profile-collection"]["requestBody"]["content"]["application/json"]
+export async function fetchFriends(): Promise<v1.Friend[] | null> {
+  return (
+    ((await _csrfFetch("/profile/friends", undefined, undefined, { method: "POST" }).then((response) =>
+      response.json()
+    )) as v1.operations["post-profile-friends"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function addFriend(
+  parameters: v1.operations["put-profile-friend"]["parameters"]["path"]
 ): Promise<boolean> {
   return (
-    (await _csrfFetch("/profile/collection", options, { method: "PATCH" }).then((response) => response.ok)) ?? false
+    (await _csrfFetch("/profile/friend/{friendId}", parameters, undefined, { method: "PUT" }).then(
+      (response) => response.ok
+    )) ?? false
   );
 }
 
-export async function deleteCollection(
-  options: v1.operations["delete-profile-collection"]["requestBody"]["content"]["application/json"]
+export async function removeFriend(
+  parameters: v1.operations["delete-profile-friend"]["parameters"]["path"]
 ): Promise<boolean> {
   return (
-    (await _csrfFetch("/profile/collection", options, {
-      method: "DELETE"
-    }).then((response) => response.ok)) ?? false
+    (await _csrfFetch("/profile/friend/{friendId}", parameters, undefined, { method: "DELETE" }).then(
+      (response) => response.ok
+    )) ?? false
   );
 }
 
-export async function fetchSeason(
-  options: v1.operations["post-profile-list"]["requestBody"]["content"]["application/json"]
-): Promise<v1.Season | null> {
+export async function fetchFriendApplications(
+  parameters: v1.operations["post-profile-friend-applications"]["parameters"]["path"]
+): Promise<v1.Application[] | null> {
   return (
-    ((await _csrfFetch("/profile/list", options, { method: "POST" }).then((response) =>
+    ((await _csrfFetch("/profile/friend/{friendId}/applications", parameters, undefined, { method: "POST" }).then(
+      (response) => response.json()
+    )) as v1.operations["post-profile-friend-applications"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function fetchFriendFiles(
+  parameters: v1.operations["post-profile-friend-files"]["parameters"]["path"]
+): Promise<v1.File[] | null> {
+  return (
+    ((await _csrfFetch("/profile/friend/{friendId}/files", parameters, undefined, { method: "POST" }).then((response) =>
       response.json()
-    )) as v1.Season) ?? null
+    )) as v1.operations["post-profile-friend-files"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
 }
 
-export async function createSeason(
-  options: v1.operations["put-profile-list"]["requestBody"]["content"]["application/json"]
-): Promise<v1.Season | null> {
+export async function fetchFriendCollections(
+  parameters: v1.operations["post-profile-friend-collections"]["parameters"]["path"]
+): Promise<v1.Collection[] | null> {
   return (
-    ((await _csrfFetch("/profile/list", options, { method: "PUT" }).then((response) =>
-      response.json()
-    )) as v1.Season) ?? null
+    ((await _csrfFetch("/profile/friend/{friendId}/collections", parameters, undefined, { method: "POST" }).then(
+      (response) => response.json()
+    )) as v1.operations["post-profile-friend-collections"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
 }
 
-export async function updateSeason(
-  options: v1.operations["patch-profile-list"]["requestBody"]["content"]["application/json"]
-): Promise<boolean> {
-  return (await _csrfFetch("/profile/list", options, { method: "PATCH" }).then((response) => response.ok)) ?? false;
-}
-
-export async function deleteSeason(
-  options: v1.operations["delete-profile-list"]["requestBody"]["content"]["application/json"]
-): Promise<boolean> {
-  return (await _csrfFetch("/profile/list", options, { method: "DELETE" }).then((response) => response.ok)) ?? false;
-}
-
-export async function fetchEpisode(
-  options: v1.operations["post-profile-episode"]["requestBody"]["content"]["application/json"]
-): Promise<v1.Episode | null> {
+export async function fetchFriendFriends(
+  parameters: v1.operations["post-profile-friend-friends"]["parameters"]["path"]
+): Promise<v1.Friend[] | null> {
   return (
-    ((await _csrfFetch("/profile/episode", options, { method: "POST" }).then((response) =>
-      response.json()
-    )) as v1.Episode) ?? null
+    ((await _csrfFetch("/profile/friend/{friendId}/friends", parameters, undefined, { method: "POST" }).then(
+      (response) => response.json()
+    )) as v1.operations["post-profile-friend-friends"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
 }
 
-export async function createEpisode(
-  options: v1.operations["put-profile-episode"]["requestBody"]["content"]["application/json"]
-): Promise<v1.Episode | null> {
+export async function fetchFiles(): Promise<v1.File[] | null> {
   return (
-    ((await _csrfFetch("/profile/episode", options, { method: "PUT" }).then((response) =>
+    ((await _csrfFetch("/profile/files", undefined, undefined, { method: "POST" }).then((response) =>
       response.json()
-    )) as v1.Episode) ?? null
+    )) as v1.operations["post-profile-files"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
-}
-
-export async function updateEpisode(
-  options: v1.operations["patch-profile-episode"]["requestBody"]["content"]["application/json"]
-): Promise<boolean> {
-  return (await _csrfFetch("/profile/episode", options, { method: "PATCH" }).then((response) => response.ok)) ?? false;
-}
-
-export async function deleteEpisode(
-  options: v1.operations["delete-profile-episode"]["requestBody"]["content"]["application/json"]
-): Promise<boolean> {
-  return (await _csrfFetch("/profile/episode", options, { method: "DELETE" }).then((response) => response.ok)) ?? false;
-}
-
-export async function fetchSource(
-  options: v1.operations["post-profile-source"]["requestBody"]["content"]["application/json"]
-): Promise<v1.operations["post-profile-source"]["responses"]["200"]["content"]["application/json"] | null> {
-  return (
-    ((await _csrfFetch("/profile/source", options, { method: "POST" }).then((response) =>
-      response.json()
-    )) as v1.operations["post-profile-source"]["responses"]["200"]["content"]["application/json"]) ?? null
-  );
-}
-
-export async function createSource(
-  options: v1.operations["put-profile-source"]["requestBody"]["content"]["application/json"]
-): Promise<v1.Source | null> {
-  return (
-    ((await _csrfFetch("/profile/source", options, { method: "PUT" }).then((response) =>
-      response.json()
-    )) as v1.Source) ?? null
-  );
-}
-
-export async function updateSource(
-  options: v1.operations["patch-profile-source"]["requestBody"]["content"]["application/json"]
-): Promise<boolean> {
-  return (await _csrfFetch("/profile/source", options, { method: "PATCH" }).then((response) => response.ok)) ?? false;
-}
-
-export async function deleteSource(
-  options: v1.operations["delete-profile-source"]["requestBody"]["content"]["application/json"]
-): Promise<boolean> {
-  return (await _csrfFetch("/profile/source", options, { method: "DELETE" }).then((response) => response.ok)) ?? false;
 }
 
 export async function fetchFile(
-  options: v1.operations["get-profile-file"]["requestBody"]["content"]["application/json"]
-): Promise<v1.operations["get-profile-file"]["responses"]["200"]["content"]["application/json"] | null> {
+  body: v1.operations["post-profile-file"]["requestBody"]["content"]["application/json"]
+): Promise<v1.operations["post-profile-file"]["responses"]["200"]["content"]["application/json"] | null> {
   return (
-    ((await _csrfFetch("/profile/file", options, { method: "POST" }).then((response) =>
+    ((await _csrfFetch("/profile/file", undefined, body, { method: "POST" }).then((response) =>
       response.json()
-    )) as v1.operations["get-profile-file"]["responses"]["200"]["content"]["application/json"]) ?? null
+    )) as v1.operations["post-profile-file"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
 }
 
 export async function createFile(
-  options: v1.operations["put-profile-file"]["requestBody"]["content"]["application/json"]
+  body: v1.operations["put-profile-file"]["requestBody"]["content"]["application/json"]
 ): Promise<v1.operations["put-profile-file"]["responses"]["200"]["content"]["application/json"] | null> {
   return (
-    ((await _csrfFetch("/profile/file", options, { method: "PUT" }).then((response) =>
+    ((await _csrfFetch("/profile/file", undefined, body, { method: "PUT" }).then((response) =>
       response.json()
     )) as v1.operations["put-profile-file"]["responses"]["200"]["content"]["application/json"]) ?? null
   );
 }
 
 export async function updateFile(
-  options: v1.operations["patch-profile-file"]["requestBody"]["content"]["application/json"]
+  body: v1.operations["patch-profile-file"]["requestBody"]["content"]["application/json"]
 ): Promise<boolean> {
-  return (await _csrfFetch("/profile/file", options, { method: "PATCH" }).then((response) => response.ok)) ?? false;
-}
-
-export async function deleteFile(
-  options: v1.operations["delete-profile-file"]["requestBody"]["content"]["application/json"]
-): Promise<boolean> {
-  return (await _csrfFetch("/profile/file", options, { method: "DELETE" }).then((response) => response.ok)) ?? false;
-}
-
-export async function fetchFiles(): Promise<
-  v1.operations["get-profile-files"]["responses"]["200"]["content"]["application/json"] | null
-> {
   return (
-    ((await _csrfFetch("/profile/files", undefined, { method: "POST" }).then((response) =>
-      response.json()
-    )) as v1.operations["get-profile-files"]["responses"]["200"]["content"]["application/json"]) ?? null
+    (await _csrfFetch("/profile/file", undefined, body, { method: "PATCH" }).then((response) => response.ok)) ?? false
   );
 }
 
-export async function fetchProfile(): Promise<v1.UserProfile | null> {
-  return _csrfFetch("/profile", undefined, { method: "POST" }).then((response) => response.json());
-}
-
-export async function patchProfile(
-  parameters: v1.operations["patch-profile"]["requestBody"]["content"]["application/json"]
+export async function deleteFile(
+  body: v1.operations["delete-profile-file"]["requestBody"]["content"]["application/json"]
 ): Promise<boolean> {
-  return _csrfFetch("/profile", parameters, { method: "PATCH" }).then((response) => response.ok);
+  return (
+    (await _csrfFetch("/profile/file", undefined, body, { method: "DELETE" }).then((response) => response.ok)) ?? false
+  );
 }
 
-export async function fetchKnown(
-  parameters: v1.operations["post-profile-known"]["requestBody"]["content"]["application/json"]
-): Promise<v1.KnownUserProfile | null> {
-  return _csrfFetch("/profile/known", parameters, { method: "POST" }).then((response) => response.json());
+export async function fetchCollections(): Promise<v1.Collection[] | null> {
+  return (
+    ((await _csrfFetch("/profile/collections", undefined, undefined, { method: "POST" }).then((response) =>
+      response.json()
+    )) as v1.operations["post-profile-collections"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
 }
 
-export async function addKnown(
-  parameters: v1.operations["put-profile-known"]["requestBody"]["content"]["application/json"]
+export async function fetchCollection(
+  body: v1.operations["post-profile-collection"]["requestBody"]["content"]["application/json"]
+): Promise<v1.Collection | null> {
+  return (
+    ((await _csrfFetch("/profile/collection", undefined, body, { method: "POST" }).then((response) =>
+      response.json()
+    )) as v1.operations["post-profile-collection"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function createCollection(
+  body: v1.operations["put-profile-collection"]["requestBody"]["content"]["application/json"]
+): Promise<v1.Collection | null> {
+  return (
+    ((await _csrfFetch("/profile/collection", undefined, body, { method: "PUT" }).then((response) =>
+      response.json()
+    )) as v1.operations["put-profile-collection"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function updateCollection(
+  body: v1.operations["patch-profile-collection"]["requestBody"]["content"]["application/json"]
 ): Promise<boolean> {
-  return _csrfFetch("/profile/known", parameters, { method: "PUT" }).then((response) => response.ok);
+  return (
+    (await _csrfFetch("/profile/collection", undefined, body, { method: "PATCH" }).then((response) => response.ok)) ??
+    false
+  );
 }
 
-export async function removeKnown(
-  parameters: v1.operations["delete-profile-known"]["requestBody"]["content"]["application/json"]
+export async function deleteCollection(
+  body: v1.operations["delete-profile-collection"]["requestBody"]["content"]["application/json"]
 ): Promise<boolean> {
-  return _csrfFetch("/profile/known", parameters, { method: "DELETE" }).then((response) => response.ok);
+  return (
+    (await _csrfFetch("/profile/collection", undefined, body, {
+      method: "DELETE"
+    }).then((response) => response.ok)) ?? false
+  );
+}
+
+export async function fetchSeason(
+  body: v1.operations["post-profile-season"]["requestBody"]["content"]["application/json"]
+): Promise<v1.Season | null> {
+  return (
+    ((await _csrfFetch("/profile/season", undefined, body, { method: "POST" }).then((response) =>
+      response.json()
+    )) as v1.operations["post-profile-season"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function createSeason(
+  body: v1.operations["put-profile-season"]["requestBody"]["content"]["application/json"]
+): Promise<v1.Season | null> {
+  return (
+    ((await _csrfFetch("/profile/season", undefined, body, { method: "PUT" }).then((response) =>
+      response.json()
+    )) as v1.operations["put-profile-season"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function updateSeason(
+  body: v1.operations["patch-profile-season"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return (
+    (await _csrfFetch("/profile/season", undefined, body, { method: "PATCH" }).then((response) => response.ok)) ?? false
+  );
+}
+
+export async function deleteSeason(
+  body: v1.operations["delete-profile-season"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return (
+    (await _csrfFetch("/profile/season", undefined, body, { method: "DELETE" }).then((response) => response.ok)) ??
+    false
+  );
+}
+
+export async function fetchEpisode(
+  body: v1.operations["post-profile-episode"]["requestBody"]["content"]["application/json"]
+): Promise<v1.Episode | null> {
+  return (
+    ((await _csrfFetch("/profile/episode", undefined, body, { method: "POST" }).then((response) =>
+      response.json()
+    )) as v1.operations["post-profile-episode"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function createEpisode(
+  body: v1.operations["put-profile-episode"]["requestBody"]["content"]["application/json"]
+): Promise<v1.Episode | null> {
+  return (
+    ((await _csrfFetch("/profile/episode", undefined, body, { method: "PUT" }).then((response) =>
+      response.json()
+    )) as v1.operations["put-profile-episode"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function updateEpisode(
+  body: v1.operations["patch-profile-episode"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return (
+    (await _csrfFetch("/profile/episode", undefined, body, { method: "PATCH" }).then((response) => response.ok)) ??
+    false
+  );
+}
+
+export async function deleteEpisode(
+  body: v1.operations["delete-profile-episode"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return (
+    (await _csrfFetch("/profile/episode", undefined, body, { method: "DELETE" }).then((response) => response.ok)) ??
+    false
+  );
+}
+
+export async function fetchSource(
+  body: v1.operations["post-profile-source"]["requestBody"]["content"]["application/json"]
+): Promise<v1.operations["post-profile-source"]["responses"]["200"]["content"]["application/json"] | null> {
+  return (
+    ((await _csrfFetch("/profile/source", undefined, body, { method: "POST" }).then((response) =>
+      response.json()
+    )) as v1.operations["post-profile-source"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function createSource(
+  body: v1.operations["put-profile-source"]["requestBody"]["content"]["application/json"]
+): Promise<v1.Source | null> {
+  return (
+    ((await _csrfFetch("/profile/source", undefined, body, { method: "PUT" }).then((response) =>
+      response.json()
+    )) as v1.operations["put-profile-source"]["responses"]["200"]["content"]["application/json"]) ?? null
+  );
+}
+
+export async function updateSource(
+  body: v1.operations["patch-profile-source"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return (
+    (await _csrfFetch("/profile/source", undefined, body, { method: "PATCH" }).then((response) => response.ok)) ?? false
+  );
+}
+
+export async function deleteSource(
+  body: v1.operations["delete-profile-source"]["requestBody"]["content"]["application/json"]
+): Promise<boolean> {
+  return (
+    (await _csrfFetch("/profile/source", undefined, body, { method: "DELETE" }).then((response) => response.ok)) ??
+    false
+  );
 }
 
 export async function requestSessionCookie(idToken: string): Promise<boolean> {
   const body: v1.operations["request-session"]["requestBody"]["content"]["application/json"] = {
     token: idToken
   };
-  return _csrfFetch("/session", body, { method: "POST" }).then((response) => response.ok);
+  return (await _csrfFetch("/session", undefined, body, { method: "POST" }).then((response) => response.ok)) ?? false;
 }
 
 export async function revokeSessionCookie(): Promise<boolean> {
-  return _csrfFetch("/session", undefined, { method: "DELETE" }).then((response) => response.ok);
+  return (
+    (await _csrfFetch("/session", undefined, undefined, { method: "DELETE" }).then((response) => response.ok)) ?? false
+  );
 }
 
 export async function requestCSRFToken(): Promise<Response> {
-  return _fetch("/csrf-token", undefined, { method: "GET" });
+  return _fetch("/csrf-token", undefined, undefined, { method: "GET" });
 }
 
 export async function testCSRFToken(): Promise<Response> {
-  return _csrfFetch("/csrf-token", undefined, { method: "POST" });
+  return _csrfFetch("/csrf-token", undefined, undefined, { method: "POST" });
 }
 
 async function _csrfFetch(
   endpoint: keyof v1.paths,
+  parameters?: {
+    [key: string]: string;
+  },
   body?: object,
   init?: RequestInit,
   retry = true
@@ -237,7 +331,7 @@ async function _csrfFetch(
     token = (await (await requestCSRFToken()).json())._csrf;
     store.dispatch(setCSRFToken(token));
   }
-  const response = await _fetch(endpoint, body, {
+  const response = await _fetch(endpoint, parameters, body, {
     ...init,
     headers: {
       "CSRF-Token": token ?? "",
@@ -246,13 +340,24 @@ async function _csrfFetch(
   });
   if (response.status === 403 && retry) {
     store.dispatch(setCSRFToken((await (await requestCSRFToken()).json())._csrf));
-    return _csrfFetch(endpoint, body, init, false);
+    return _csrfFetch(endpoint, parameters, body, init, false);
   }
   return response;
 }
 
-async function _fetch(endpoint: keyof v1.paths, body?: object, init?: RequestInit): Promise<Response> {
-  return fetch(`${import.meta.env.VITE_MOOS_BACKEND ?? "https://moos.wolkeneis.dev"}/api/v1${endpoint}`, {
+async function _fetch(
+  endpoint: keyof v1.paths,
+  parameters?: {
+    [key: string]: string;
+  },
+  body?: object,
+  init?: RequestInit
+): Promise<Response> {
+  let finalEndpoint: string = endpoint;
+  for (const [key, value] of Object.entries(parameters ?? {})) {
+    finalEndpoint = finalEndpoint.replace(`{${key}}`, value);
+  }
+  return fetch(`${import.meta.env.VITE_MOOS_BACKEND ?? "https://moos.wolkeneis.dev"}/api/v1${finalEndpoint}`, {
     method: "POST",
     credentials: "include",
     body: body ? JSON.stringify(body) : undefined,

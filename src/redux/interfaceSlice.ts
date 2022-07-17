@@ -22,32 +22,32 @@ export const interfaceSlice: Slice = createSlice({
   name: "interface",
   initialState,
   reducers: {
-    selectTheme: (state, action: PayloadAction<"dark-theme" | "light-theme">) => {
+    selectTheme: (state: InterfaceState, action: PayloadAction<"dark-theme" | "light-theme">) => {
       state.theme = action.payload;
     },
-    toggleTheme: (state) => {
+    toggleTheme: (state: InterfaceState) => {
       state.theme = state.theme === "dark-theme" ? "light-theme" : "dark-theme";
     },
 
-    setMobile: (state, action: PayloadAction<boolean>) => {
+    setMobile: (state: InterfaceState, action: PayloadAction<boolean>) => {
       state.mobile = action.payload;
     },
 
-    setDrawerOpen: (state, action: PayloadAction<boolean>) => {
+    setDrawerOpen: (state: InterfaceState, action: PayloadAction<boolean>) => {
       state.drawerOpen = action.payload;
     },
-    toggleDrawer: (state) => {
+    toggleDrawer: (state: InterfaceState) => {
       state.drawerOpen = !state.drawerOpen;
     },
-    setDrawerWidth: (state, action: PayloadAction<number>) => {
+    setDrawerWidth: (state: InterfaceState, action: PayloadAction<number>) => {
       state.drawerWidth = action.payload;
     },
 
-    setLoginRequiredVisible(state, action: PayloadAction<boolean>) {
+    setLoginRequiredVisible(state: InterfaceState, action: PayloadAction<boolean>) {
       state.loginRequiredVisible = action.payload;
     },
 
-    setFriendErrorVisible(state, action: PayloadAction<boolean>) {
+    setFriendErrorVisible(state: InterfaceState, action: PayloadAction<boolean>) {
       state.friendErrorVisible = action.payload;
     }
   }
