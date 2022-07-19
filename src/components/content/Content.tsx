@@ -1,7 +1,12 @@
 import { styled } from "@mui/material";
+import { v1 } from "moos-api";
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import { useAppSelector } from "../../redux/hooks";
+import { fetchFriendCollections } from "../../logic/api";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setCollection } from "../../redux/sessionSlice";
 import Header from "../header/Header";
+import Collection from "./Collection";
 import Friends from "./Friends";
 import Home from "./Home";
 
@@ -9,6 +14,22 @@ const Content = () => {
   const drawerOpen = useAppSelector((state) => state.interface.drawerOpen);
   const drawerWidth = useAppSelector((state) => state.interface.drawerWidth);
   const mobile = useAppSelector((state) => state.interface.mobile);
+  const friends: v1.Friend[] = useAppSelector((state) => state.session.friends);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (friends) {
+      friends.forEach(async (friend) => {
+        try {
+          const collections = await fetchFriendCollections({ friendId: friend.uid });
+          if (collections === null) {
+            throw new Error("No collections found");
+          }
+          dispatch(setCollection({ friendId: friend.uid, collections: collections }));
+        } catch {}
+      });
+    }
+  }, [friends]);
 
   return (
     <>
@@ -17,6 +38,7 @@ const Content = () => {
         <HeaderSpacer />
         <Routes>
           <Route element={<Home />} path="/" />
+          <Route element={<Collection />} path="/collection" />
           <Route element={<Friends />} path="/friends" />
         </Routes>
         <HeaderSpacer />

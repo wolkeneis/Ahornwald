@@ -1,33 +1,15 @@
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 import { v1 } from "moos-api";
-import { useEffect } from "react";
-import { fetchFriendCollections } from "../../logic/api";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { setCollection } from "../../redux/sessionSlice";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../../redux/hooks";
 import LoginRequired from "../LoginRequired";
 
 const Home = () => {
   const profile: v1.UserProfile = useAppSelector((state) => state.session.profile);
-  const friends: v1.Friend[] = useAppSelector((state) => state.session.friends);
   const collections: {
     [key: string]: v1.Collection[];
   } = useAppSelector((state) => state.session.collections);
   const mobile = useAppSelector((state) => state.interface.mobile);
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (friends) {
-      friends.forEach(async (friend) => {
-        try {
-          const collections = await fetchFriendCollections({ friendId: friend.uid });
-          if (collections === null) {
-            throw new Error("No collections found");
-          }
-          dispatch(setCollection({ friendId: friend.uid, collections: collections }));
-        } catch {}
-      });
-    }
-  }, [friends]);
 
   return (
     <Box
@@ -67,10 +49,12 @@ const Home = () => {
 };
 
 const Collection = ({ collection }: { collection: v1.Collection }) => {
+  const navigate = useNavigate();
+
   return (
     <Paper
       elevation={4}
-      onClick={() => console.log("Wald")}
+      onClick={() => navigate(`/collection#${collection.id}`)}
       sx={{
         userSelect: "none",
         cursor: "pointer",
