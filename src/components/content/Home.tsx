@@ -1,10 +1,139 @@
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, CircularProgress, MenuItem, Paper, Select, Typography } from "@mui/material";
 import { v1 } from "moos-api";
-import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../redux/hooks";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { fetchSeason } from "../../logic/api";
+import { setCurrentCollection, setCurrentSeason, setSeason } from "../../redux/contentSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import LoginRequired from "../LoginRequired";
 
+const sorter = (firstSeason: v1.Season | null, secondSeason: v1.Season | null) => {
+  const a = (firstSeason?.index ?? 0) - 1;
+  const b = (secondSeason?.index ?? 0) - 1;
+  if (a < 0 && b < 0) {
+    return b - a;
+  } else if (a < 0) {
+    return 1;
+  } else if (b < 0) {
+    return -1;
+  } else {
+    return a - b;
+  }
+};
+
+const seasonNameOf = (index: number) => {
+  if (index === 0) {
+    return "Specials";
+  } else if (index > 0) {
+    return `Season ${index}`;
+  } else {
+    return null;
+  }
+};
+
 const Home = () => {
+  const hash = useLocation().hash.substring(1);
+  const collections: {
+    [key: string]: v1.Collection[];
+  } = useAppSelector((state) => state.content.collections);
+  const collection: v1.Collection = useAppSelector((state) => state.content.collection);
+  const seasons: { [key: string]: v1.Season } = useAppSelector((state) => state.content.seasons);
+  const season: string = useAppSelector((state) => state.content.season);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (hash && (!collection || collection.id !== hash)) {
+      const foundCollection = Object.keys(collections)
+        .map((userId) => collections[userId])
+        .find((collectionList) => collectionList.find((collection) => collection.id === hash))
+        ?.find((collection) => collection.id === hash);
+
+      if (foundCollection && foundCollection !== collection) {
+        dispatch(setCurrentCollection(foundCollection));
+      }
+    } else if (!hash) {
+      dispatch(setCurrentCollection(undefined));
+      dispatch(setCurrentSeason(undefined));
+    }
+  }, [hash, collections]);
+
+  useEffect(() => {
+    if (collection) {
+      console.log(collection);
+      Promise.all(
+        collection.seasons
+          .filter((seasonId) => !seasons[seasonId])
+          .map(async (seasonId) => await fetchSeason({ id: seasonId }).catch(() => null))
+      ).then((unfilteredSeasons) => {
+        if (unfilteredSeasons) {
+          const seasons = unfilteredSeasons.filter((season) => !!season);
+          if (seasons.length > 0) {
+            seasons.sort(sorter);
+            console.log(`collection default ${collection.name}`);
+            dispatch(setCurrentSeason(seasons[0]?.id));
+            seasons.forEach((season) => dispatch(setSeason(season)));
+          }
+        }
+      });
+    }
+  }, [collection]);
+
+  useEffect(() => {
+    const currentSeason = seasons[season];
+    if (currentSeason) {
+      console.log(`${collection?.seasons.includes(currentSeason.id)} ${currentSeason.id}`);
+    }
+  }, [season]);
+
+  return collection ? (
+    <Paper sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Paper
+        elevation={6}
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: 2
+        }}
+      >
+        <Typography variant="h5">{collection.name}</Typography>
+        {collection &&
+          !!season &&
+          collection.seasons.includes(season) &&
+          !!collection.seasons
+            .map((seasonId) => seasons[seasonId])
+            .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
+            .filter((season) => !!season.name).length && (
+            <Select
+              onChange={(event) => {
+                console.log("do change thing");
+
+                dispatch(setCurrentSeason(event.target.value));
+              }}
+              value={season}
+            >
+              {collection.seasons
+                .map((seasonId) => seasons[seasonId])
+                .sort(sorter)
+                .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
+                .filter((season) => !!season.name)
+                .map((season) => (
+                  <MenuItem key={season.id} value={season.id}>
+                    {season.name}
+                  </MenuItem>
+                ))}
+            </Select>
+          )}
+      </Paper>
+      Jesus
+    </Paper>
+  ) : (
+    <Collections />
+  );
+};
+
+const Collections = () => {
   const profile: v1.UserProfile = useAppSelector((state) => state.session.profile);
   const collections: {
     [key: string]: v1.Collection[];
@@ -36,7 +165,9 @@ const Home = () => {
             >
               {Object.keys(collections).map((friendId: string) => {
                 const collectionList = collections[friendId];
-                return collectionList.map((collection) => <Collection collection={collection} key={collection.id} />);
+                return collectionList.map((collection) => (
+                  <CollectionPreview collection={collection} key={collection.id} />
+                ));
               })}
             </Box>
           ) : (
@@ -48,19 +179,20 @@ const Home = () => {
   );
 };
 
-const Collection = ({ collection }: { collection: v1.Collection }) => {
+const CollectionPreview = ({ collection }: { collection: v1.Collection }) => {
   const navigate = useNavigate();
 
   return (
     <Paper
       elevation={4}
-      onClick={() => navigate(`/collection#${collection.id}`)}
+      onClick={() => navigate(`/#${collection.id}`)}
       sx={{
         userSelect: "none",
         cursor: "pointer",
         display: "flex",
         flexDirection: "column",
-        padding: 2,
+        padding: 3,
+        gap: 3,
         alignItems: "center",
         justifyContent: "space-between",
         maxWidth: "80vw",
@@ -76,15 +208,13 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
         component="img"
         draggable={false}
         src={collection.thumbnail}
-        sx={{ userSelect: "none", width: "calc(25vw - 2rem)", minWidth: "120px", maxWidth: "200px", margin: 2 }}
+        sx={{ userSelect: "none", width: "calc(25vw - 2rem)", minWidth: "120px", maxWidth: "200px" }}
       />
       <Typography
         sx={{
-          marginTop: 2,
           width: "calc(25vw - 2rem)",
           minWidth: "120px",
           maxWidth: "200px",
-          margin: 2,
           textTransform: "uppercase"
         }}
         variant="body1"

@@ -60,15 +60,16 @@ const Friends = () => {
             <Paper
               sx={{
                 padding: 3,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
                 maxWidth: "95%"
               }}
             >
-              <Typography sx={{ marginBottom: 2 }} variant="h5">
-                Friendlist
-              </Typography>
+              <Typography variant="h5">Friendlist</Typography>
               <AddFriendField />
               {friends && friends.length > 0 && (
-                <List sx={{ padding: 0, marginTop: 2 }}>
+                <List sx={{ padding: 0 }}>
                   {friends?.map((friend) => (
                     <Friend friend={friend} key={friend.uid} />
                   ))}

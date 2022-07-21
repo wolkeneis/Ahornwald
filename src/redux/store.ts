@@ -1,7 +1,7 @@
 import { configureStore, Store } from "@reduxjs/toolkit";
+import contentReducer from "./contentSlice";
 import interfaceReducer from "./interfaceSlice";
 import sessionReducer from "./sessionSlice";
-import contentReducer from "./contentSlice";
 
 export const store: Store = configureStore({
   reducer: {

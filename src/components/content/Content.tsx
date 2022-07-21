@@ -6,7 +6,6 @@ import { fetchFriendCollections } from "../../logic/api";
 import { setCollections } from "../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import Header from "../header/Header";
-import Collection from "./Collection";
 import Friends from "./Friends";
 import Home from "./Home";
 
@@ -38,7 +37,6 @@ const Content = () => {
         <HeaderSpacer />
         <Routes>
           <Route element={<Home />} path="/" />
-          <Route element={<Collection />} path="/collection" />
           <Route element={<Friends />} path="/friends" />
         </Routes>
         <HeaderSpacer />
