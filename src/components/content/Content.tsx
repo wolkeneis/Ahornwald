@@ -3,8 +3,8 @@ import { v1 } from "moos-api";
 import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { fetchFriendCollections } from "../../logic/api";
+import { setCollections } from "../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { setCollection } from "../../redux/sessionSlice";
 import Header from "../header/Header";
 import Collection from "./Collection";
 import Friends from "./Friends";
@@ -25,7 +25,7 @@ const Content = () => {
           if (collections === null) {
             throw new Error("No collections found");
           }
-          dispatch(setCollection({ friendId: friend.uid, collections: collections }));
+          dispatch(setCollections({ friendId: friend.uid, collections: collections }));
         } catch {}
       });
     }

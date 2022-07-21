@@ -8,7 +8,7 @@ const Home = () => {
   const profile: v1.UserProfile = useAppSelector((state) => state.session.profile);
   const collections: {
     [key: string]: v1.Collection[];
-  } = useAppSelector((state) => state.session.collections);
+  } = useAppSelector((state) => state.content.collections);
   const mobile = useAppSelector((state) => state.interface.mobile);
 
   return (
