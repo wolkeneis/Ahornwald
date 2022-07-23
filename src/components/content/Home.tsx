@@ -2,8 +2,7 @@ import { Box, CircularProgress, MenuItem, Paper, Select, Typography } from "@mui
 import { v1 } from "moos-api";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchSeason } from "../../logic/api";
-import { setCurrentCollection, setCurrentSeason, setSeason } from "../../redux/contentSlice";
+import { setCurrentCollection, setCurrentSeason } from "../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import LoginRequired from "../LoginRequired";
 
@@ -34,10 +33,9 @@ const seasonNameOf = (index: number) => {
 const Home = () => {
   const hash = useLocation().hash.substring(1);
   const collections: {
-    [key: string]: v1.Collection[];
+    [key: string]: v1.CollectionPreview[];
   } = useAppSelector((state) => state.content.collections);
-  const collection: v1.Collection = useAppSelector((state) => state.content.collection);
-  const seasons: { [key: string]: v1.Season } = useAppSelector((state) => state.content.seasons);
+  const collection: v1.CollectionPreview = useAppSelector((state) => state.content.collection);
   const season: string = useAppSelector((state) => state.content.season);
   const dispatch = useAppDispatch();
 
@@ -59,29 +57,19 @@ const Home = () => {
 
   useEffect(() => {
     if (collection) {
-      console.log(collection);
-      Promise.all(
-        collection.seasons
-          .filter((seasonId) => !seasons[seasonId])
-          .map(async (seasonId) => await fetchSeason({ id: seasonId }).catch(() => null))
-      ).then((unfilteredSeasons) => {
-        if (unfilteredSeasons) {
-          const seasons = unfilteredSeasons.filter((season) => !!season);
-          if (seasons.length > 0) {
-            seasons.sort(sorter);
-            console.log(`collection default ${collection.name}`);
-            dispatch(setCurrentSeason(seasons[0]?.id));
-            seasons.forEach((season) => dispatch(setSeason(season)));
-          }
-        }
-      });
+      const seasons = collection.seasons.filter((season) => !!season);
+      if (seasons.length > 0) {
+        seasons.sort(sorter);
+        console.log(`collection default ${collection.name}`);
+        dispatch(setCurrentSeason(seasons[0]?.id));
+      }
     }
   }, [collection]);
 
   useEffect(() => {
-    const currentSeason = seasons[season];
+    const currentSeason = collection.seasons.find(({ id }) => id === season);
     if (currentSeason) {
-      console.log(`${collection?.seasons.includes(currentSeason.id)} ${currentSeason.id}`);
+      console.log(`${currentSeason.id}`);
     }
   }, [season]);
 
@@ -100,9 +88,8 @@ const Home = () => {
         <Typography variant="h5">{collection.name}</Typography>
         {collection &&
           !!season &&
-          collection.seasons.includes(season) &&
+          collection.seasons.find(({ id }) => id === season) &&
           !!collection.seasons
-            .map((seasonId) => seasons[seasonId])
             .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
             .filter((season) => !!season.name).length && (
             <Select
@@ -114,7 +101,6 @@ const Home = () => {
               value={season}
             >
               {collection.seasons
-                .map((seasonId) => seasons[seasonId])
                 .sort(sorter)
                 .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
                 .filter((season) => !!season.name)
@@ -136,7 +122,7 @@ const Home = () => {
 const Collections = () => {
   const profile: v1.UserProfile = useAppSelector((state) => state.session.profile);
   const collections: {
-    [key: string]: v1.Collection[];
+    [key: string]: v1.CollectionPreview[];
   } = useAppSelector((state) => state.content.collections);
   const mobile = useAppSelector((state) => state.interface.mobile);
 
@@ -179,7 +165,7 @@ const Collections = () => {
   );
 };
 
-const CollectionPreview = ({ collection }: { collection: v1.Collection }) => {
+const CollectionPreview = ({ collection }: { collection: v1.CollectionPreview }) => {
   const navigate = useNavigate();
 
   return (

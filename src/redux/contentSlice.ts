@@ -3,19 +3,15 @@ import { v1 } from "moos-api";
 
 interface ContentState {
   collections?: {
-    [key: string]: v1.Collection[] | undefined;
+    [key: string]: v1.CollectionPreview[] | undefined;
   } | null;
   collection?: v1.Collection;
-  seasons?: {
-    [key: string]: v1.Season | undefined;
-  } | null;
   season?: string;
 }
 
 const initialState: ContentState = {
   collections: {},
   collection: undefined,
-  seasons: {},
   season: undefined
 };
 
@@ -25,7 +21,7 @@ export const contentSlice: Slice = createSlice({
   reducers: {
     setCollections: (
       state: ContentState,
-      action: PayloadAction<{ friendId: string; collections: v1.Collection[] | null }>
+      action: PayloadAction<{ friendId: string; collections: v1.CollectionPreview[] | null }>
     ) => {
       state.collections = state.collections ?? {};
       if (action.payload.collections === null) {
@@ -39,17 +35,12 @@ export const contentSlice: Slice = createSlice({
       state.collection = action.payload;
     },
 
-    setSeason: (state: ContentState, action: PayloadAction<v1.Season>) => {
-      state.seasons = state.seasons ?? {};
-      state.seasons[action.payload.id] = action.payload;
-    },
-
     setCurrentSeason: (state: ContentState, action: PayloadAction<string | undefined>) => {
       state.season = action.payload;
     }
   }
 });
 
-export const { setCollections, setCurrentCollection, setSeason, setCurrentSeason } = contentSlice.actions;
+export const { setCollections, setCurrentCollection, setCurrentSeason } = contentSlice.actions;
 
 export default contentSlice.reducer;

@@ -74,7 +74,7 @@ export async function fetchFriendFiles(
 
 export async function fetchFriendCollections(
   parameters: v1.operations["post-profile-friend-collections"]["parameters"]["path"]
-): Promise<v1.Collection[] | null> {
+): Promise<v1.CollectionPreview[] | null> {
   return (
     ((await _csrfFetch("/profile/friend/{friendId}/collections", parameters, undefined, { method: "POST" }).then(
       (response) => response.json()
@@ -136,7 +136,7 @@ export async function deleteFile(
   );
 }
 
-export async function fetchCollections(): Promise<v1.Collection[] | null> {
+export async function fetchCollections(): Promise<v1.CollectionPreview[] | null> {
   return (
     ((await _csrfFetch("/profile/collections", undefined, undefined, { method: "POST" }).then((response) =>
       response.json()
