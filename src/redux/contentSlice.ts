@@ -5,7 +5,7 @@ interface ContentState {
   collections?: {
     [key: string]: v1.CollectionPreview[] | undefined;
   } | null;
-  collection?: v1.Collection;
+  collection?: v1.Collection | null;
   season?: string;
 }
 
@@ -31,7 +31,7 @@ export const contentSlice: Slice = createSlice({
       }
     },
 
-    setCurrentCollection: (state: ContentState, action: PayloadAction<v1.Collection | undefined>) => {
+    setCurrentCollection: (state: ContentState, action: PayloadAction<v1.Collection | undefined | null>) => {
       state.collection = action.payload;
     },
 
