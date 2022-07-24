@@ -28,7 +28,7 @@ const Profile = () => {
       ) : (
         <>
           {profile === null ? (
-            <Button component="a" href={`${import.meta.env.VITE_MAIN_PAGE}/redirect/login`}>
+            <Button component="a" href={`${import.meta.env.VITE_MAIN_PAGE ?? "https://wolkeneis.dev"}/redirect/login`}>
               Login
             </Button>
           ) : (
@@ -56,14 +56,20 @@ const Profile = () => {
                 open={anchor !== null}
                 sx={{ mt: ".5em" }}
               >
-                <MenuItem component="a" href={`${import.meta.env.VITE_MAIN_PAGE}/redirect/profile`}>
+                <MenuItem
+                  component="a"
+                  href={`${import.meta.env.VITE_MAIN_PAGE ?? "https://wolkeneis.dev"}/redirect/profile`}
+                >
                   <ListItemIcon>
                     <OpenInNewIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary="Account" />
                 </MenuItem>
                 <Divider />
-                <MenuItem component="a" href={`${import.meta.env.VITE_MAIN_PAGE}/redirect/logout`}>
+                <MenuItem
+                  component="a"
+                  href={`${import.meta.env.VITE_MAIN_PAGE ?? "https://wolkeneis.dev"}/redirect/logout`}
+                >
                   <ListItemIcon>
                     <LogoutIcon fontSize="small" />
                   </ListItemIcon>

@@ -77,7 +77,7 @@ const Navigator = () => {
       >
         Wolkeneis, Copyright © 2022
         <br />
-        Version {import.meta.env.VITE_SITE_VERSION}
+        Version 0.1.0
       </Typography>
     </SwipeableDrawer>
   );

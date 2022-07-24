@@ -9,7 +9,7 @@ const LoginRequired = () => {
   return (
     <Snackbar
       action={
-        <Button component="a" href={`${import.meta.env.VITE_MAIN_PAGE}/redirect/login`}>
+        <Button component="a" href={`${import.meta.env.VITE_MAIN_PAGE ?? "https://wolkeneis.dev"}/redirect/login`}>
           Login
         </Button>
       }

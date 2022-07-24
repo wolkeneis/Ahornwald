@@ -2,8 +2,8 @@ import { Box, CircularProgress, MenuItem, Paper, Select, Typography } from "@mui
 import { v1 } from "moos-api";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchSeason } from "../../logic/api";
-import { setCurrentCollection, setCurrentSeason, setSeason } from "../../redux/contentSlice";
+import { fetchCollection } from "../../logic/api";
+import { setCurrentCollection, setCurrentSeason } from "../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import LoginRequired from "../LoginRequired";
 
@@ -33,57 +33,42 @@ const seasonNameOf = (index: number) => {
 
 const Home = () => {
   const hash = useLocation().hash.substring(1);
-  const collections: {
-    [key: string]: v1.Collection[];
+  const collectionPreviews: {
+    [key: string]: v1.CollectionPreview[];
   } = useAppSelector((state) => state.content.collections);
-  const collection: v1.Collection = useAppSelector((state) => state.content.collection);
-  const seasons: { [key: string]: v1.Season } = useAppSelector((state) => state.content.seasons);
-  const season: string = useAppSelector((state) => state.content.season);
+  const collection: v1.Collection | undefined | null = useAppSelector((state) => state.content.collection);
+  const seasonId: string = useAppSelector((state) => state.content.season);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (hash && (!collection || collection.id !== hash)) {
-      const foundCollection = Object.keys(collections)
-        .map((userId) => collections[userId])
-        .find((collectionList) => collectionList.find((collection) => collection.id === hash))
-        ?.find((collection) => collection.id === hash);
-
-      if (foundCollection && foundCollection !== collection) {
-        dispatch(setCurrentCollection(foundCollection));
-      }
+      dispatch(setCurrentCollection(null));
+      fetchCollection({ id: hash })
+        .then((fetchedCollection) => {
+          if (!fetchedCollection) {
+            return dispatch(setCurrentCollection(undefined));
+          }
+          if (fetchedCollection.id !== collection?.id) {
+            dispatch(setCurrentCollection(fetchedCollection));
+          }
+        })
+        .catch(() => dispatch(setCurrentCollection(undefined)));
     } else if (!hash) {
       dispatch(setCurrentCollection(undefined));
       dispatch(setCurrentSeason(undefined));
     }
-  }, [hash, collections]);
+  }, [hash, collectionPreviews]);
 
   useEffect(() => {
     if (collection) {
-      console.log(collection);
-      Promise.all(
-        collection.seasons
-          .filter((seasonId) => !seasons[seasonId])
-          .map(async (seasonId) => await fetchSeason({ id: seasonId }).catch(() => null))
-      ).then((unfilteredSeasons) => {
-        if (unfilteredSeasons) {
-          const seasons = unfilteredSeasons.filter((season) => !!season);
-          if (seasons.length > 0) {
-            seasons.sort(sorter);
-            console.log(`collection default ${collection.name}`);
-            dispatch(setCurrentSeason(seasons[0]?.id));
-            seasons.forEach((season) => dispatch(setSeason(season)));
-          }
-        }
-      });
+      const seasons = collection.seasons.filter((season) => !!season);
+      if (seasons.length > 0) {
+        seasons.sort(sorter);
+        console.log(`collection default ${collection.name}`);
+        dispatch(setCurrentSeason(seasons[0]?.id));
+      }
     }
   }, [collection]);
-
-  useEffect(() => {
-    const currentSeason = seasons[season];
-    if (currentSeason) {
-      console.log(`${collection?.seasons.includes(currentSeason.id)} ${currentSeason.id}`);
-    }
-  }, [season]);
 
   return collection ? (
     <Paper sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -99,22 +84,13 @@ const Home = () => {
       >
         <Typography variant="h5">{collection.name}</Typography>
         {collection &&
-          !!season &&
-          collection.seasons.includes(season) &&
+          !!seasonId &&
+          collection.seasons.find((season) => season.id === seasonId) &&
           !!collection.seasons
-            .map((seasonId) => seasons[seasonId])
             .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
             .filter((season) => !!season.name).length && (
-            <Select
-              onChange={(event) => {
-                console.log("do change thing");
-
-                dispatch(setCurrentSeason(event.target.value));
-              }}
-              value={season}
-            >
-              {collection.seasons
-                .map((seasonId) => seasons[seasonId])
+            <Select onChange={(event) => dispatch(setCurrentSeason(event.target.value))} value={seasonId}>
+              {[...collection.seasons]
                 .sort(sorter)
                 .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
                 .filter((season) => !!season.name)
@@ -126,7 +102,6 @@ const Home = () => {
             </Select>
           )}
       </Paper>
-      Jesus
     </Paper>
   ) : (
     <Collections />
@@ -136,7 +111,7 @@ const Home = () => {
 const Collections = () => {
   const profile: v1.UserProfile = useAppSelector((state) => state.session.profile);
   const collections: {
-    [key: string]: v1.Collection[];
+    [key: string]: v1.CollectionPreview[];
   } = useAppSelector((state) => state.content.collections);
   const mobile = useAppSelector((state) => state.interface.mobile);
 
@@ -179,7 +154,7 @@ const Collections = () => {
   );
 };
 
-const CollectionPreview = ({ collection }: { collection: v1.Collection }) => {
+const CollectionPreview = ({ collection }: { collection: v1.CollectionPreview }) => {
   const navigate = useNavigate();
 
   return (
