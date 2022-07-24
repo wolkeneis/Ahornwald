@@ -1,6 +1,19 @@
-import { Box, CircularProgress, MenuItem, Paper, Select, Typography } from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PlayDisabledIcon from "@mui/icons-material/PlayDisabled";
+import {
+  Box,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Select,
+  Typography
+} from "@mui/material";
 import { v1 } from "moos-api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchCollection } from "../../logic/api";
 import { setCurrentCollection, setCurrentSeason } from "../../redux/contentSlice";
@@ -37,7 +50,6 @@ const Home = () => {
     [key: string]: v1.CollectionPreview[];
   } = useAppSelector((state) => state.content.collections);
   const collection: v1.Collection | undefined | null = useAppSelector((state) => state.content.collection);
-  const seasonId: string = useAppSelector((state) => state.content.season);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -64,13 +76,38 @@ const Home = () => {
       const seasons = collection.seasons.filter((season) => !!season);
       if (seasons.length > 0) {
         seasons.sort(sorter);
-        console.log(`collection default ${collection.name}`);
         dispatch(setCurrentSeason(seasons[0]?.id));
       }
     }
   }, [collection]);
 
   return collection ? (
+    <Collection collection={collection} />
+  ) : (
+    <>
+      {collection === null ? (
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <CircularProgress />{" "}
+        </Box>
+      ) : (
+        <Collections />
+      )}
+    </>
+  );
+};
+
+const Collection = ({ collection }: { collection: v1.Collection }) => {
+  const seasonId: string = useAppSelector((state) => state.content.season);
+  const [season, setSeason] = useState<v1.Season | undefined>();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (seasonId) {
+      setSeason(collection?.seasons.find((season) => season.id === seasonId));
+    }
+  }, [collection, seasonId]);
+
+  return (
     <Paper sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Paper
         elevation={6}
@@ -83,9 +120,7 @@ const Home = () => {
         }}
       >
         <Typography variant="h5">{collection.name}</Typography>
-        {collection &&
-          !!seasonId &&
-          collection.seasons.find((season) => season.id === seasonId) &&
+        {!!season &&
           !!collection.seasons
             .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
             .filter((season) => !!season.name).length && (
@@ -102,9 +137,20 @@ const Home = () => {
             </Select>
           )}
       </Paper>
+      {!!season && (
+        <List>
+          {season.episodes.map((episode) => (
+            <ListItem disabled={!episode.sources.length} key={episode.id} title={episode.name}>
+              <ListItemIcon>{episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}</ListItemIcon>
+              <ListItemText
+                primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
+                secondary={season.index > 0 ? episode.name : undefined}
+              />
+            </ListItem>
+          ))}
+        </List>
+      )}
     </Paper>
-  ) : (
-    <Collections />
   );
 };
 
