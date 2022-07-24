@@ -16,7 +16,8 @@ import {
   OutlinedInput,
   Paper,
   Snackbar,
-  Typography
+  Typography,
+  useMediaQuery
 } from "@mui/material";
 import { v1 } from "moos-api";
 import { useEffect, useState } from "react";
@@ -31,6 +32,10 @@ const Friends = () => {
   const friends: v1.Friend[] = useAppSelector((state) => state.session.friends);
   const mobile = useAppSelector((state) => state.interface.mobile);
   const friendErrorVisible = useAppSelector((state) => state.interface.friendErrorVisible);
+  const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
+  const drawerWidth: number = useAppSelector((state) => state.interface.drawerWidth);
+  const matchesClosedDrawer = useMediaQuery(`(min-width:${460}px)`);
+  const matchesOpenDrawer = useMediaQuery(`(min-width:${drawerWidth + 460}px)`);
   const dispatch = useAppDispatch();
 
   return (
@@ -63,7 +68,8 @@ const Friends = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
-                maxWidth: "95%"
+                maxWidth: "95%",
+                zoom: drawerOpen ? (matchesOpenDrawer ? 1 : 0.8) : matchesClosedDrawer ? 1 : 0.8
               }}
             >
               <Typography variant="h5">Friendlist</Typography>
@@ -124,7 +130,7 @@ const AddFriendField = () => {
         id="friend-id"
         label="User ID"
         onChange={(event) => setFriendId(event.target.value)}
-        sx={{ width: 330 }}
+        sx={{ minWidth: 220 }}
         type="text"
         value={friendId}
       />
@@ -158,7 +164,30 @@ const Friend = ({ friend }: { friend: v1.Friend }) => {
       <ListItemAvatar title={friend.username}>
         <Avatar src={(friend.avatar as string | null) ?? undefined}>{friend.username.slice(0, 2)}</Avatar>
       </ListItemAvatar>
-      <ListItemText primary={friend.username} secondary={!friend.consensual ? "Unconsensual" : undefined} />
+      <ListItemText
+        primary={friend.username}
+        primaryTypographyProps={{
+          sx: {
+            maxWidth: 150,
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis"
+          }
+        }}
+        secondary={!friend.consensual ? "Unconsensual" : undefined}
+        secondaryTypographyProps={
+          !friend.consensual
+            ? {
+                sx: {
+                  maxWidth: 150,
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis"
+                }
+              }
+            : undefined
+        }
+      />
     </ListItem>
   );
 };
