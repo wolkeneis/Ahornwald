@@ -99,6 +99,8 @@ const Home = () => {
 const Collection = ({ collection }: { collection: v1.Collection }) => {
   const seasonId: string = useAppSelector((state) => state.content.season);
   const [season, setSeason] = useState<v1.Season | undefined>();
+  const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
+  const drawerWidth: number = useAppSelector((state) => state.interface.drawerWidth);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -108,7 +110,7 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
   }, [collection, seasonId]);
 
   return (
-    <Paper sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "stretch" }}>
       <Paper
         elevation={6}
         sx={{
@@ -138,19 +140,44 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
           )}
       </Paper>
       {!!season && (
-        <List>
-          {season.episodes.map((episode) => (
-            <ListItem disabled={!episode.sources.length} key={episode.id} title={episode.name}>
-              <ListItemIcon>{episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}</ListItemIcon>
-              <ListItemText
-                primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
-                secondary={season.index > 0 ? episode.name : undefined}
-              />
-            </ListItem>
-          ))}
-        </List>
+        <Paper sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Box>
+            <List>
+              {season.episodes.map((episode) => (
+                <ListItem
+                  disabled={!episode.sources.length}
+                  key={episode.id}
+                  sx={{ minWidth: "20vw" }}
+                  title={episode.name}
+                >
+                  <ListItemIcon>{episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}</ListItemIcon>
+                  <ListItemText
+                    primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
+                    primaryTypographyProps={{
+                      sx: {
+                        maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis"
+                      }
+                    }}
+                    secondary={season.index > 0 ? episode.name : undefined}
+                    secondaryTypographyProps={{
+                      sx: {
+                        maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis"
+                      }
+                    }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Paper>
       )}
-    </Paper>
+    </Box>
   );
 };
 
