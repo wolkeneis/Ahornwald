@@ -7,12 +7,14 @@ interface ContentState {
   } | null;
   collection?: v1.Collection | null;
   season?: string;
+  preferredLanguage: v1.Language | null;
 }
 
 const initialState: ContentState = {
   collections: {},
   collection: undefined,
-  season: undefined
+  season: undefined,
+  preferredLanguage: null
 };
 
 export const contentSlice: Slice = createSlice({
@@ -37,10 +39,14 @@ export const contentSlice: Slice = createSlice({
 
     setCurrentSeason: (state: ContentState, action: PayloadAction<string | undefined>) => {
       state.season = action.payload;
+    },
+
+    setPreferredLanguage: (state: ContentState, action: PayloadAction<v1.Language | null>) => {
+      state.preferredLanguage = action.payload;
     }
   }
 });
 
-export const { setCollections, setCurrentCollection, setCurrentSeason } = contentSlice.actions;
+export const { setCollections, setCurrentCollection, setCurrentSeason, setPreferredLanguage } = contentSlice.actions;
 
 export default contentSlice.reducer;

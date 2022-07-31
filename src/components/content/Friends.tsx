@@ -30,7 +30,6 @@ import LoginRequired from "../LoginRequired";
 const Friends = () => {
   const profile: v1.UserProfile = useAppSelector((state) => state.session.profile);
   const friends: v1.Friend[] = useAppSelector((state) => state.session.friends);
-  const mobile = useAppSelector((state) => state.interface.mobile);
   const friendErrorVisible = useAppSelector((state) => state.interface.friendErrorVisible);
   const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
   const drawerWidth: number = useAppSelector((state) => state.interface.drawerWidth);
@@ -43,8 +42,7 @@ const Friends = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        marginTop: mobile ? 0 : 4
+        alignItems: "center"
       }}
     >
       <Snackbar

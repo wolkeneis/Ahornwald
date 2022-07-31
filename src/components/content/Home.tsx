@@ -1,7 +1,9 @@
+import LanguageIcon from "@mui/icons-material/Language";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PlayDisabledIcon from "@mui/icons-material/PlayDisabled";
 import {
   Box,
+  Button,
   CircularProgress,
   List,
   ListItem,
@@ -10,6 +12,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Tooltip,
   Typography
 } from "@mui/material";
 import { v1 } from "moos-api";
@@ -41,6 +44,18 @@ const seasonNameOf = (index: number) => {
     return `Season ${index}`;
   } else {
     return null;
+  }
+};
+const languageNameOf = (language: v1.Language) => {
+  switch (language) {
+    case "de_DE":
+      return "German";
+    case "en_EN":
+      return "English";
+    case "ja_JP":
+      return "Japanese";
+    case "zh_CN":
+      return "Chinese";
   }
 };
 
@@ -98,6 +113,7 @@ const Home = () => {
 
 const Collection = ({ collection }: { collection: v1.Collection }) => {
   const seasonId: string = useAppSelector((state) => state.content.season);
+  const preferredLanguage: v1.Language | null = useAppSelector((state) => state.content.preferredLanguage);
   const [season, setSeason] = useState<v1.Season | undefined>();
   const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
   const drawerWidth: number = useAppSelector((state) => state.interface.drawerWidth);
@@ -142,15 +158,17 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
       {!!season && (
         <Paper sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <Box>
-            <List>
+            <List component="div">
               {season.episodes.map((episode) => (
                 <ListItem
+                  component="div"
                   disabled={!episode.sources.length}
                   key={episode.id}
-                  sx={{ minWidth: "20vw" }}
-                  title={episode.name}
+                  sx={{ minWidth: "20vw", gap: 1 }}
                 >
-                  <ListItemIcon>{episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}</ListItemIcon>
+                  <ListItemIcon>
+                    <Button>{episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}</Button>
+                  </ListItemIcon>
                   <ListItemText
                     primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
                     primaryTypographyProps={{
@@ -170,7 +188,13 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
                         textOverflow: "ellipsis"
                       }
                     }}
+                    title={episode.name}
                   />
+                  <Tooltip title={<LanguageTooltip episode={episode} />}>
+                    <ListItemIcon>
+                      <LanguageIcon sx={{ cursor: "pointer" }} />
+                    </ListItemIcon>
+                  </Tooltip>
                 </ListItem>
               ))}
             </List>
@@ -178,6 +202,20 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
         </Paper>
       )}
     </Box>
+  );
+};
+
+const LanguageTooltip = ({ episode }: { episode: v1.Episode }) => {
+  return (
+    <>
+      {episode.sources.map((source) => (
+        <Typography key={`${source.language}:${source.subtitles}`} variant="body2">
+          {source.subtitles
+            ? `${languageNameOf(source.language)}, [${languageNameOf(source.subtitles)}]`
+            : `${languageNameOf(source.language)}`}
+        </Typography>
+      ))}
+    </>
   );
 };
 
