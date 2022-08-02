@@ -7,6 +7,9 @@ interface ContentState {
   } | null;
   collection?: v1.Collection | null;
   season?: string;
+  episode?: v1.Episode | null;
+  source?: v1.Source | null;
+  sourceUrl?: string | null;
   preferredLanguage: v1.Language | null;
 }
 
@@ -14,6 +17,9 @@ const initialState: ContentState = {
   collections: {},
   collection: undefined,
   season: undefined,
+  episode: undefined,
+  source: undefined,
+  sourceUrl: undefined,
   preferredLanguage: null
 };
 
@@ -41,12 +47,32 @@ export const contentSlice: Slice = createSlice({
       state.season = action.payload;
     },
 
+    setCurrentEpisode: (state: ContentState, action: PayloadAction<v1.Episode | undefined | null>) => {
+      state.episode = action.payload;
+    },
+
+    setCurrentSource: (state: ContentState, action: PayloadAction<v1.Source | undefined | null>) => {
+      state.source = action.payload;
+    },
+
+    setSourceUrl: (state: ContentState, action: PayloadAction<string | undefined>) => {
+      state.sourceUrl = action.payload;
+    },
+
     setPreferredLanguage: (state: ContentState, action: PayloadAction<v1.Language | null>) => {
       state.preferredLanguage = action.payload;
     }
   }
 });
 
-export const { setCollections, setCurrentCollection, setCurrentSeason, setPreferredLanguage } = contentSlice.actions;
+export const {
+  setCollections,
+  setCurrentCollection,
+  setCurrentSeason,
+  setCurrentEpisode,
+  setCurrentSource,
+  setSourceUrl,
+  setPreferredLanguage
+} = contentSlice.actions;
 
 export default contentSlice.reducer;

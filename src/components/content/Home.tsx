@@ -18,8 +18,14 @@ import {
 import { v1 } from "moos-api";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchCollection } from "../../logic/api";
-import { setCurrentCollection, setCurrentSeason } from "../../redux/contentSlice";
+import { fetchCollection, fetchSource } from "../../logic/api";
+import {
+  setCurrentCollection,
+  setCurrentEpisode,
+  setCurrentSeason,
+  setCurrentSource,
+  setSourceUrl
+} from "../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import LoginRequired from "../LoginRequired";
 
@@ -112,7 +118,9 @@ const Home = () => {
 };
 
 const Collection = ({ collection }: { collection: v1.Collection }) => {
-  const seasonId: string = useAppSelector((state) => state.content.season);
+  const seasonId: string | null = useAppSelector((state) => state.content.season);
+  const currentEpisode: v1.Episode | undefined | null = useAppSelector((state) => state.content.episode);
+  const currentSource: v1.Source | undefined | null = useAppSelector((state) => state.content.source);
   const preferredLanguage: v1.Language | null = useAppSelector((state) => state.content.preferredLanguage);
   const [season, setSeason] = useState<v1.Season | undefined>();
   const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
@@ -124,6 +132,34 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
       setSeason(collection?.seasons.find((season) => season.id === seasonId));
     }
   }, [collection, seasonId]);
+
+  useEffect(() => {
+    if (currentEpisode) {
+      dispatch(
+        setCurrentSource(currentEpisode.sources.find((source) => source.language === preferredLanguage)) ??
+          currentEpisode.sources[0] ??
+          undefined
+      );
+    }
+    return () => {
+      dispatch(setCurrentSource(undefined));
+    };
+  }, [currentEpisode]);
+
+  useEffect(() => {
+    if (currentSource) {
+      fetchSource({ id: currentSource.id })
+        .then((fetchedSource) => dispatch(setSourceUrl(fetchedSource?.url ?? null)))
+        .catch(() => dispatch(setSourceUrl(null)));
+    }
+    return () => {
+      dispatch(setSourceUrl(undefined));
+    };
+  }, [currentSource]);
+
+  const selectEpisode = (episode: v1.Episode) => {
+    dispatch(setCurrentEpisode(episode));
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "stretch" }}>
@@ -167,7 +203,9 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
                   sx={{ minWidth: "20vw", gap: 1 }}
                 >
                   <ListItemIcon>
-                    <Button>{episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}</Button>
+                    <Button onClick={() => selectEpisode(episode)}>
+                      {episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}
+                    </Button>
                   </ListItemIcon>
                   <ListItemText
                     primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
