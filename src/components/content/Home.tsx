@@ -140,6 +140,8 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
           currentEpisode.sources[0] ??
           undefined
       );
+    } else {
+      dispatch(setCurrentSource(undefined));
     }
     return () => {
       dispatch(setCurrentSource(undefined));
@@ -151,6 +153,8 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
       fetchSource({ id: currentSource.id })
         .then((fetchedSource) => dispatch(setSourceUrl(fetchedSource?.url ?? null)))
         .catch(() => dispatch(setSourceUrl(null)));
+    } else {
+      dispatch(setSourceUrl(null));
     }
     return () => {
       dispatch(setSourceUrl(undefined));
