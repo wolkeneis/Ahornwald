@@ -136,9 +136,11 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
   useEffect(() => {
     if (currentEpisode) {
       dispatch(
-        setCurrentSource(currentEpisode.sources.find((source) => source.language === preferredLanguage)) ??
-          currentEpisode.sources[0] ??
-          undefined
+        setCurrentSource(
+          currentEpisode.sources.find((source) => source.language === preferredLanguage) ??
+            currentEpisode.sources[0] ??
+            undefined
+        )
       );
     } else {
       dispatch(setCurrentSource(undefined));
