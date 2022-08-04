@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import { v1 } from "moos-api";
 import { useEffect, useState } from "react";
-import ReactPlayer from "react-player";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchCollection, fetchSource } from "../../logic/api";
 import {
@@ -29,6 +28,7 @@ import {
 } from "../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import LoginRequired from "../LoginRequired";
+import VideoPlayer from "./player/VideoPlayer";
 
 const sorter = (firstSeason: v1.Season | null, secondSeason: v1.Season | null) => {
   const a = (firstSeason?.index ?? 0) - 1;
@@ -172,8 +172,7 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
 
   return (
     <>
-      {" "}
-      {sourceUrl && <VideoPlayer />}
+      <VideoPlayer />
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "stretch" }}>
         <Paper
           elevation={6}
@@ -268,12 +267,6 @@ const LanguageTooltip = ({ episode }: { episode: v1.Episode }) => {
       ))}
     </>
   );
-};
-
-const VideoPlayer = () => {
-  const sourceUrl: string = useAppSelector((state) => state.content.sourceUrl);
-
-  return <ReactPlayer url={sourceUrl}></ReactPlayer>;
 };
 
 const Collections = () => {

@@ -15,6 +15,7 @@ specifiers:
   '@types/react-router-dom': ^5.3.3
   '@typescript-eslint/eslint-plugin': ^5.30.7
   '@typescript-eslint/parser': ^5.30.7
+  '@use-gesture/react': ^10.2.17
   '@vitejs/plugin-react': ^2.0.0
   eslint: ^8.20.0
   eslint-config-prettier: ^8.5.0
@@ -40,6 +41,7 @@ dependencies:
   '@mui/icons-material': 5.8.4_67klntijwxqlm2hij5x527mwqy
   '@mui/material': 5.9.1_bl6qrq6463ovzmqn4cmwv7vydq
   '@reduxjs/toolkit': 1.8.3_kkwg4cbsojnjnupd3btipussee
+  '@use-gesture/react': 10.2.17_react@18.2.0
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-player: 2.10.1_react@18.2.0
@@ -1980,6 +1982,19 @@ packages:
       '@typescript-eslint/types': 5.30.7
       eslint-visitor-keys: 3.3.0
     dev: true
+
+  /@use-gesture/core/10.2.17:
+    resolution: {integrity: sha512-62hCybe4x6oGZ1/JA9gSYIdghV1FqxCdvYWt9SqCEAAikwT1OmVl2Q/Uu8CP636L57D+DfXtw6PWM+fdhr4oJQ==}
+    dev: false
+
+  /@use-gesture/react/10.2.17_react@18.2.0:
+    resolution: {integrity: sha512-Vfrp1KgdYn/kOEUAYNXtGBCl2dr38s3G6rru1TOPs+cVUjfNyNxvJK56grUyJ336N3rQLK8F9G7+FfrHuc3g/Q==}
+    peerDependencies:
+      react: '>= 16.8.0'
+    dependencies:
+      '@use-gesture/core': 10.2.17
+      react: 18.2.0
+    dev: false
 
   /@vitejs/plugin-react/2.0.0_vite@3.0.2:
     resolution: {integrity: sha512-zHkRR+X4zqEPNBbKV2FvWSxK7Q6crjMBVIAYroSU8Nbb4M3E5x4qOiLoqJBHtXgr27kfednXjkwr3lr8jS6Wrw==}
