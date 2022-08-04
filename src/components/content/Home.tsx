@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { v1 } from "moos-api";
 import { useEffect, useState } from "react";
+import ReactPlayer from "react-player";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchCollection, fetchSource } from "../../logic/api";
 import {
@@ -52,6 +53,7 @@ const seasonNameOf = (index: number) => {
     return null;
   }
 };
+
 const languageNameOf = (language: v1.Language) => {
   switch (language) {
     case "de_DE":
@@ -121,6 +123,7 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
   const seasonId: string | null = useAppSelector((state) => state.content.season);
   const currentEpisode: v1.Episode | undefined | null = useAppSelector((state) => state.content.episode);
   const currentSource: v1.Source | undefined | null = useAppSelector((state) => state.content.source);
+  const sourceUrl: string | undefined | null = useAppSelector((state) => state.content.sourceUrl);
   const preferredLanguage: v1.Language | null = useAppSelector((state) => state.content.preferredLanguage);
   const [season, setSeason] = useState<v1.Season | undefined>();
   const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
@@ -168,84 +171,88 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "stretch" }}>
-      <Paper
-        elevation={6}
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: 2
-        }}
-      >
-        <Typography variant="h5">{collection.name}</Typography>
-        {!!season &&
-          !!collection.seasons
-            .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
-            .filter((season) => !!season.name).length && (
-            <Select onChange={(event) => dispatch(setCurrentSeason(event.target.value))} value={seasonId}>
-              {[...collection.seasons]
-                .sort(sorter)
-                .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
-                .filter((season) => !!season.name)
-                .map((season) => (
-                  <MenuItem key={season.id} value={season.id}>
-                    {season.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          )}
-      </Paper>
-      {!!season && (
-        <Paper sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <Box>
-            <List component="div">
-              {season.episodes.map((episode) => (
-                <ListItem
-                  component="div"
-                  disabled={!episode.sources.length}
-                  key={episode.id}
-                  sx={{ minWidth: "20vw", gap: 1 }}
-                >
-                  <ListItemIcon>
-                    <Button onClick={() => selectEpisode(episode)}>
-                      {episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}
-                    </Button>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
-                    primaryTypographyProps={{
-                      sx: {
-                        maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis"
-                      }
-                    }}
-                    secondary={season.index > 0 ? episode.name : undefined}
-                    secondaryTypographyProps={{
-                      sx: {
-                        maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis"
-                      }
-                    }}
-                    title={episode.name}
-                  />
-                  <Tooltip title={<LanguageTooltip episode={episode} />}>
-                    <ListItemIcon>
-                      <LanguageIcon sx={{ cursor: "pointer" }} />
-                    </ListItemIcon>
-                  </Tooltip>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
+    <>
+      {" "}
+      {sourceUrl && <VideoPlayer />}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "stretch" }}>
+        <Paper
+          elevation={6}
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 2
+          }}
+        >
+          <Typography variant="h5">{collection.name}</Typography>
+          {!!season &&
+            !!collection.seasons
+              .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
+              .filter((season) => !!season.name).length && (
+              <Select onChange={(event) => dispatch(setCurrentSeason(event.target.value))} value={seasonId}>
+                {[...collection.seasons]
+                  .sort(sorter)
+                  .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
+                  .filter((season) => !!season.name)
+                  .map((season) => (
+                    <MenuItem key={season.id} value={season.id}>
+                      {season.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            )}
         </Paper>
-      )}
-    </Box>
+        {!!season && (
+          <Paper sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Box>
+              <List component="div">
+                {season.episodes.map((episode) => (
+                  <ListItem
+                    component="div"
+                    disabled={!episode.sources.length}
+                    key={episode.id}
+                    sx={{ minWidth: "20vw", gap: 1 }}
+                  >
+                    <ListItemIcon>
+                      <Button onClick={() => selectEpisode(episode)}>
+                        {episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}
+                      </Button>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
+                      primaryTypographyProps={{
+                        sx: {
+                          maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis"
+                        }
+                      }}
+                      secondary={season.index > 0 ? episode.name : undefined}
+                      secondaryTypographyProps={{
+                        sx: {
+                          maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis"
+                        }
+                      }}
+                      title={episode.name}
+                    />
+                    <Tooltip title={<LanguageTooltip episode={episode} />}>
+                      <ListItemIcon>
+                        <LanguageIcon sx={{ cursor: "pointer" }} />
+                      </ListItemIcon>
+                    </Tooltip>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Paper>
+        )}
+      </Box>
+    </>
   );
 };
 
@@ -261,6 +268,12 @@ const LanguageTooltip = ({ episode }: { episode: v1.Episode }) => {
       ))}
     </>
   );
+};
+
+const VideoPlayer = () => {
+  const sourceUrl: string = useAppSelector((state) => state.content.sourceUrl);
+
+  return <ReactPlayer url={sourceUrl}></ReactPlayer>;
 };
 
 const Collections = () => {
