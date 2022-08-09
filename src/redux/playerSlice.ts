@@ -4,6 +4,8 @@ interface PlayerState {
   playing: boolean;
   time: number;
   timePercent: number;
+  buffered: number;
+  duration: number;
   volume: number;
   controls: boolean;
   muted: boolean;
@@ -13,6 +15,8 @@ const initialState: PlayerState = {
   playing: false,
   time: 0,
   timePercent: 0,
+  buffered: 0,
+  duration: 0,
   controls: true,
   volume: 0.5,
   muted: false
@@ -34,6 +38,14 @@ export const playerSlice: Slice = createSlice({
       state.timePercent = action.payload;
     },
 
+    setBuffered(state: PlayerState, action: PayloadAction<number>) {
+      state.buffered = action.payload;
+    },
+
+    setDuration(state: PlayerState, action: PayloadAction<number>) {
+      state.duration = action.payload;
+    },
+
     setControlsVisible(state: PlayerState, action: PayloadAction<boolean>) {
       state.controls = action.payload;
     },
@@ -48,6 +60,15 @@ export const playerSlice: Slice = createSlice({
   }
 });
 
-export const { setPlaying, setTime, setTimePercent, setControlsVisible, setVolume, setMuted } = playerSlice.actions;
+export const {
+  setPlaying,
+  setTime,
+  setTimePercent,
+  setBuffered,
+  setDuration,
+  setControlsVisible,
+  setVolume,
+  setMuted
+} = playerSlice.actions;
 
 export default playerSlice.reducer;
