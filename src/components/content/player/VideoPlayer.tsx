@@ -51,9 +51,7 @@ const VideoPlayer = () => {
     }*/
   };
 
-  const onProgress = (event: any) => {
-    console.log("Brand", event);
-
+  const onProgress = (event: { played: number; playedSeconds: number; loaded: number }) => {
     dispatch(setTime(event.playedSeconds));
     dispatch(setTimePercent(event.played));
     dispatch(setBuffered(event.loaded));
@@ -84,11 +82,19 @@ const VideoPlayer = () => {
         <Box sx={{ position: "relative" }}>
           <video
             controls
+            onCanPlay={onReady}
             onError={onError}
-            onLoad={() => console.log("Ready")}
-            onLoadedData={(event) => console.log("data", event)}
             onLoadedMetadata={(event) => onDuration((event.target as HTMLVideoElement).duration)}
-            onProgress={onProgress}
+            onProgress={(event) =>
+              onProgress({
+                played: (event.target as HTMLVideoElement).currentTime / (event.target as HTMLVideoElement).duration,
+                playedSeconds: (event.target as HTMLVideoElement).currentTime,
+                loaded:
+                  (event.target as HTMLVideoElement).buffered.end(
+                    (event.target as HTMLVideoElement).buffered.length - 1
+                  ) / (event.target as HTMLVideoElement).duration
+              })
+            }
             src={sourceUrl}
           ></video>
         </Box>
