@@ -26,7 +26,7 @@ specifiers:
   prettier: 2.7.1
   react: ^18.2.0
   react-dom: ^18.2.0
-  react-player: ^2.10.1
+  react-player: 2.9.0
   react-redux: ^8.0.2
   react-router-dom: ^6.3.0
   sass: ^1.54.0
@@ -44,7 +44,7 @@ dependencies:
   '@use-gesture/react': 10.2.17_react@18.2.0
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
-  react-player: 2.10.1_react@18.2.0
+  react-player: 2.9.0_react@18.2.0
   react-redux: 8.0.2_v7vsrdtui4d36prbwvdnlb7tpq
   react-router-dom: 6.3.0_biqbaboplfbrettd7655fr4n2y
 
@@ -3875,8 +3875,8 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: false
 
-  /react-player/2.10.1_react@18.2.0:
-    resolution: {integrity: sha512-ova0jY1Y1lqLYxOehkzbNEju4rFXYVkr5rdGD71nsiG4UKPzRXQPTd3xjoDssheoMNjZ51mjT5ysTrdQ2tEvsg==}
+  /react-player/2.9.0_react@18.2.0:
+    resolution: {integrity: sha512-jNUkTfMmUhwPPAktAdIqiBcVUKsFKrVGH6Ocutj6535CNfM91yrvWxHg6fvIX8Y/fjYUPoejddwh7qboNV9vGA==}
     peerDependencies:
       react: '>=16.6.0'
     dependencies:
