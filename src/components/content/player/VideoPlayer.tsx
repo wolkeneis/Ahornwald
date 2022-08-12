@@ -83,11 +83,20 @@ const VideoPlayer = () => {
       {sourceUrl && (
         <Box sx={{ position: "relative" }}>
           <ReactPlayer
-            controls
-            onProgress={(state) => console.log("Progress", state)}
-            progressInterval={1000}
+            height="100%"
+            muted={muted}
+            onDuration={onDuration}
+            onError={onError}
+            onProgress={onProgress}
+            onReady={onReady}
+            playing={playing}
+            progressInterval={250}
+            ref={videoPlayer}
             url={sourceUrl}
+            volume={volume}
+            width="100%"
           />
+          <VideoControls />
         </Box>
       )}
     </>
