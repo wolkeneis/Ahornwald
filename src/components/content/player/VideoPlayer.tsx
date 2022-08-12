@@ -51,8 +51,8 @@ const VideoPlayer = () => {
     }*/
   };
 
-  const onProgress = (event: any) => {
-    console.log("Brand", event);
+  const onProgress = (event: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => {
+    console.log("Brand");
 
     dispatch(setTime(event.playedSeconds));
     dispatch(setTimePercent(event.played));
@@ -82,15 +82,12 @@ const VideoPlayer = () => {
     <>
       {sourceUrl && (
         <Box sx={{ position: "relative" }}>
-          <video
+          <ReactPlayer
             controls
-            onError={onError}
-            onLoad={() => console.log("Ready")}
-            onLoadedData={(event) => console.log("data", event)}
-            onLoadedMetadata={(event) => onDuration((event.target as HTMLVideoElement).duration)}
-            onProgress={onProgress}
-            src={sourceUrl}
-          ></video>
+            onProgress={(state) => console.log("Progress", state)}
+            progressInterval={1000}
+            url={sourceUrl}
+          />
         </Box>
       )}
     </>
