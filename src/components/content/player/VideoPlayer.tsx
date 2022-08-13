@@ -72,7 +72,7 @@ const VideoPlayer = () => {
     dispatch(setDuration(0));
     dispatch(setTimePercent(0));
     dispatch(setBuffered(0));
-    dispatch(setPlaying(false));
+    dispatch(setPlaying(true));
   }, [sourceUrl]);
 
   const showControls = () => {
@@ -118,6 +118,7 @@ const VideoPlayer = () => {
     <>
       {sourceUrl && (
         <Box
+          id="video-player"
           onMouseEnter={showControls}
           onMouseLeave={hideControls}
           onMouseMove={() => (moved.current = true)}
@@ -141,10 +142,6 @@ const VideoPlayer = () => {
       )}
     </>
   );
-};
-
-const sync = () => {
-  console.log("Wald");
 };
 
 const isTouchDevice = () => {
@@ -237,20 +234,18 @@ const LeftControlContainer = ({
     dispatch(setCurrentEpisode(previousEpisode));
     dispatch(setTime(0));
     dispatch(setPlaying(true));
-    sync();
   };
 
   const playNext = (nextEpisode: v1.Episode) => {
     dispatch(setCurrentEpisode(nextEpisode));
     dispatch(setTime(0));
     dispatch(setPlaying(true));
-    sync();
   };
 
   return (
     <Box
       sx={{
-        padding: 1,
+        padding: 0.5,
         gap: 0.25,
         display: "flex",
         flexDirection: "row",
@@ -263,21 +258,11 @@ const LeftControlContainer = ({
         </Button>
       )}
       {playing ? (
-        <Button
-          onClick={() => {
-            dispatch(setPlaying(false));
-            sync();
-          }}
-        >
+        <Button onClick={() => dispatch(setPlaying(false))}>
           <PauseIcon />
         </Button>
       ) : (
-        <Button
-          onClick={() => {
-            dispatch(setPlaying(true));
-            sync();
-          }}
-        >
+        <Button onClick={() => dispatch(setPlaying(true))}>
           <PlayArrowIcon />
         </Button>
       )}
@@ -304,12 +289,12 @@ const RightControlContainer = () => {
       }}
     >
       <VolumeChanger />
-      {document.fullscreenElement === document.getElementById("video-wrapper") ? (
+      {document.fullscreenElement === document.getElementById("video-player") ? (
         <Button onClick={() => document.exitFullscreen()}>
           <FullscreenExitIcon />
         </Button>
       ) : (
-        <Button onClick={() => document.getElementById("video-wrapper")?.requestFullscreen()}>
+        <Button onClick={() => document.getElementById("video-player")?.requestFullscreen()}>
           <FullscreenIcon />
         </Button>
       )}
@@ -403,15 +388,17 @@ const Timeline = () => {
   };
 
   return (
-    <Slider
-      aria-label="Volume"
-      max={1}
-      min={0}
-      onChange={(_event, value) => onSeek(value as number)}
-      size="small"
-      step={0.0001}
-      value={playedPercent}
-    />
+    <Box sx={{ marginX: 2 }}>
+      <Slider
+        aria-label="Volume"
+        max={1}
+        min={0}
+        onChange={(_event, value) => onSeek(value as number)}
+        size="small"
+        step={0.0001}
+        value={playedPercent}
+      />
+    </Box>
   );
 };
 
