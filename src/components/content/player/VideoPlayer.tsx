@@ -7,14 +7,14 @@ import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import VolumeDownIcon from "@mui/icons-material/VolumeDown";
 import VolumeMuteIcon from "@mui/icons-material/VolumeMute";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import { Box, Button } from "@mui/material";
-import { useDrag } from "@use-gesture/react";
+import { Box, Button, Slider, Typography } from "@mui/material";
 import { v1 } from "moos-api";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
   setBuffered,
+  setControlsVisible,
   setDuration,
   setMuted,
   setPlaying,
@@ -22,38 +22,65 @@ import {
   setTimePercent,
   setVolume
 } from "../../../redux/playerSlice";
+import useInterval from "../../useInterval";
 
 const VideoPlayer = () => {
   const sourceUrl: string = useAppSelector((state) => state.content.sourceUrl);
-
   const muted: boolean = useAppSelector((state) => state.player.muted);
-
   const mobile = useAppSelector((state) => state.interface.mobile);
-  //const playlist = useSelector((state) => state.content.playlist);
-  //const selectedEpisode = useSelector((state) => state.content.episode);
   const volume = useAppSelector((state) => state.player.volume);
   const playing = useAppSelector((state) => state.player.playing);
   const time = useAppSelector((state) => state.player.time);
-  const timePercent = useAppSelector((state) => state.player.timePercent);
+  const controlsVisible: boolean = useAppSelector((state) => state.player.controls);
   const videoPlayer = useRef<ReactPlayer>(null);
   const idle = useRef(0);
   const moved = useRef(false);
   const inside = useRef(false);
   const dispatch = useAppDispatch();
 
-  const onReady = () => {
-    console.log("Ready");
-    /*calculateHeight();
-    if (roomId && !host) {
-      setTimeout(() => {
-        requestSync();
-      }, 1000);
-    }*/
+  useInterval(() => {
+    if (moved.current || !playing) {
+      if (!controlsVisible && inside.current) {
+        dispatch(setControlsVisible(true));
+        idle.current = 0;
+      }
+    } else {
+      if (controlsVisible) {
+        idle.current = idle.current + 500;
+      }
+    }
+    if (idle.current >= (mobile || isTouchDevice() ? 3500 : 2500)) {
+      dispatch(setControlsVisible(false));
+      idle.current = 0;
+    }
+    moved.current = false;
+  }, 500);
+
+  useEffect(() => {
+    if (videoPlayer.current) {
+      const currentTime = videoPlayer.current.getCurrentTime();
+      if (currentTime > time + 0.25 || currentTime < time - 0.25) {
+        videoPlayer.current.seekTo(time, "seconds");
+        idle.current = 0;
+      }
+    }
+  }, [time]);
+
+  const showControls = () => {
+    idle.current = 0;
+    inside.current = true;
+    dispatch(setControlsVisible(true));
+  };
+
+  const hideControls = () => {
+    idle.current = 0;
+    inside.current = false;
+    if (playing) {
+      dispatch(setControlsVisible(false));
+    }
   };
 
   const onProgress = (event: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => {
-    console.log("Brand");
-
     dispatch(setTime(event.playedSeconds));
     dispatch(setTimePercent(event.played));
     dispatch(setBuffered(event.loaded));
@@ -81,14 +108,19 @@ const VideoPlayer = () => {
   return (
     <>
       {sourceUrl && (
-        <Box sx={{ position: "relative" }}>
+        <Box
+          onClick={() => dispatch(setPlaying(!playing))}
+          onMouseEnter={showControls}
+          onMouseLeave={hideControls}
+          onMouseMove={() => (moved.current = true)}
+          sx={{ position: "relative", cursor: controlsVisible ? "default" : "none", marginBottom: 3 }}
+        >
           <ReactPlayer
             height="100%"
             muted={muted}
             onDuration={onDuration}
             onError={onError}
             onProgress={onProgress}
-            onReady={onReady}
             playing={playing}
             progressInterval={250}
             ref={videoPlayer}
@@ -114,7 +146,6 @@ const isTouchDevice = () => {
 const VideoControls = () => {
   const currentCollection: v1.Collection | null | undefined = useAppSelector((state) => state.content.collection);
   const currentEpisode: v1.Episode | null | undefined = useAppSelector((state) => state.content.episode);
-  //const selectedEpisode = useAppSelector((state) => state.content.episode);
   const visible: boolean = useAppSelector((state) => state.player.controls);
   const muted: boolean = useAppSelector((state) => state.player.muted);
   const dispatch = useAppDispatch();
@@ -133,20 +164,46 @@ const VideoControls = () => {
   const unmute = () => dispatch(setMuted(false));
 
   return (
-    <div className="VideoControls" style={visible || muted ? {} : { opacity: "0" }}>
+    <Box
+      sx={{
+        position: "absolute",
+        bottom: 0,
+        background: "linear-gradient(to top, black , transparent)",
+        width: "100%",
+        padding: 2,
+        paddingTop: 0,
+        opacity: visible || muted ? 1 : 0,
+        display: "flex",
+        flexDirection: "column",
+        transition: "opacity 300ms ease",
+        zIndex: 1
+      }}
+    >
       {muted && (
-        <div className="AboveTimeline">
-          <Button aria-label="Unmute Button" className="UnmuteButton" onClick={unmute} style={{}}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between"
+          }}
+        >
+          <Button aria-label="Unmute Button" onClick={unmute} style={{}}>
             Unmute Audio
           </Button>
-        </div>
+        </Box>
       )}
-      <div className="AboveTimeline">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between"
+        }}
+      >
         <LeftControlContainer nextEpisode={nextEpisode} previousEpisode={previousEpisode} />
         <RightControlContainer />
-      </div>
+      </Box>
       <Timeline />
-    </div>
+    </Box>
   );
 };
 
@@ -198,7 +255,15 @@ const LeftControlContainer = ({
   };
 
   return (
-    <div className="ControlContainer">
+    <Box
+      sx={{
+        padding: 1,
+        gap: 0.25,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center"
+      }}
+    >
       {previousEpisode && (
         <Button onClick={playPrevious}>
           <SkipPreviousIcon />
@@ -228,16 +293,23 @@ const LeftControlContainer = ({
           <SkipNextIcon />
         </Button>
       )}
-      <p className="Time">
+      <Typography variant="subtitle1">
         {parseTime(time)} / {parseTime(duration)}
-      </p>
-    </div>
+      </Typography>
+    </Box>
   );
 };
 
 const RightControlContainer = () => {
   return (
-    <div className="ControlContainer">
+    <Box
+      sx={{
+        padding: 0.5,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center"
+      }}
+    >
       <VolumeChanger />
       {document.fullscreenElement === document.getElementById("video-wrapper") ? (
         <Button onClick={() => document.exitFullscreen()}>
@@ -248,35 +320,80 @@ const RightControlContainer = () => {
           <FullscreenIcon />
         </Button>
       )}
-    </div>
+    </Box>
   );
 };
 
 const VolumeChanger = () => {
+  const [hoverIcon, setHoverIcon] = useState(false);
+  const [hoverSlider, setHoverSlider] = useState(false);
   const mobile = useAppSelector((state) => state.interface.mobile);
   const volume = useAppSelector((state) => state.player.volume);
   const muted = useAppSelector((state) => state.player.muted);
   const dispatch = useAppDispatch();
-  const slider = useRef<HTMLDivElement>(null);
+  const iconTimeout = useRef<NodeJS.Timeout | null>(null);
+  const sliderTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const bind = useDrag((state) => {
-    if (slider.current) {
-      const rect = slider.current.getBoundingClientRect();
-      const relativeVolume = Math.min(Math.max((state.xy[0] - rect.x) / rect.width, 0), 1);
-      dispatch(setVolume(relativeVolume));
+  const onHoverIcon = () => {
+    setHoverIcon(true);
+    if (iconTimeout.current) {
+      clearTimeout(iconTimeout.current);
     }
-  }, {});
+  };
+
+  const onHoverSlider = () => {
+    setHoverSlider(true);
+    if (sliderTimeout.current) {
+      clearTimeout(sliderTimeout.current);
+    }
+  };
 
   return (
     <>
       {!mobile && !isTouchDevice() && (
-        <div className="VolumeChanger">
-          {muted || !volume ? <VolumeMuteIcon /> : volume > 0.5 ? <VolumeUpIcon /> : <VolumeDownIcon />}
-          <div {...bind()} className="VolumeSlider" ref={slider}>
-            <div className="Volume" style={{ backgroundSize: `${volume * 100}% 100%` }}></div>
-            <div className="Thumb" style={{ left: `${volume * 100}%` }}></div>
-          </div>
-        </div>
+        <Box
+          sx={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column-reverse"
+          }}
+        >
+          <Button
+            onMouseEnter={onHoverIcon}
+            onMouseLeave={() => (iconTimeout.current = setTimeout(() => setHoverIcon(false), 500))}
+            onMouseOver={onHoverIcon}
+          >
+            {muted || !volume ? <VolumeMuteIcon /> : volume > 0.5 ? <VolumeUpIcon /> : <VolumeDownIcon />}
+          </Button>
+          {(hoverIcon || hoverSlider) && (
+            <Box
+              onMouseEnter={onHoverSlider}
+              onMouseLeave={() => (sliderTimeout.current = setTimeout(() => setHoverSlider(false), 500))}
+              onMouseOver={onHoverSlider}
+              sx={{
+                position: "absolute",
+                transform: "translateY(-100%)"
+              }}
+            >
+              <Slider
+                aria-label="Volume"
+                max={1}
+                min={0}
+                onChange={(_event, value) => dispatch(setVolume((value as number) === null ? volume : value))}
+                orientation="vertical"
+                size="small"
+                step={0.01}
+                sx={{
+                  bottom: 0,
+                  height: 50
+                }}
+                value={volume}
+              />
+            </Box>
+          )}
+        </Box>
       )}
     </>
   );
@@ -284,30 +401,24 @@ const VolumeChanger = () => {
 
 const Timeline = () => {
   const duration = useAppSelector((state) => state.player.duration);
-  const played = useAppSelector((state) => state.player.played);
-  const loaded = useAppSelector((state) => state.player.loaded);
+  const playedPercent = useAppSelector((state) => state.player.timePercent);
   const dispatch = useAppDispatch();
-  const timeline = useRef<HTMLDivElement>(null);
 
-  const bind = useDrag((state) => {
-    if (timeline.current && state.type !== "pointerup") {
-      const rect = timeline.current.getBoundingClientRect();
-      const relativeTime = Math.min(Math.max((state.xy[0] - rect.x) / rect.width, 0), 1);
-      dispatch(setTime(relativeTime));
-      dispatch(setTimePercent(relativeTime * duration));
-    } else {
-      sync();
-    }
-  }, {});
+  const onSeek = (value: number) => {
+    dispatch(setTime(value * duration));
+    dispatch(setTimePercent(value));
+  };
 
   return (
-    <>
-      <div {...bind()} className="Timeline" ref={timeline}>
-        <div className="Buffered" style={{ backgroundSize: `${loaded * 100}% 100%` }}></div>
-        <div className="Played" style={{ backgroundSize: `${played * 100}% 100%` }}></div>
-        <div className="Thumb" style={{ left: `${played * 100}%` }}></div>
-      </div>
-    </>
+    <Slider
+      aria-label="Volume"
+      max={1}
+      min={0}
+      onChange={(_event, value) => onSeek(value as number)}
+      size="small"
+      step={0.0001}
+      value={playedPercent}
+    />
   );
 };
 
