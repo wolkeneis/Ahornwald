@@ -11,6 +11,7 @@ import { Box, Button, Slider, Typography } from "@mui/material";
 import { v1 } from "moos-api";
 import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
+import { setCurrentEpisode } from "../../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
   setBuffered,
@@ -66,6 +67,14 @@ const VideoPlayer = () => {
     }
   }, [time]);
 
+  useEffect(() => {
+    dispatch(setTime(0));
+    dispatch(setDuration(0));
+    dispatch(setTimePercent(0));
+    dispatch(setBuffered(0));
+    dispatch(setPlaying(false));
+  }, [sourceUrl]);
+
   const showControls = () => {
     idle.current = 0;
     inside.current = true;
@@ -109,7 +118,6 @@ const VideoPlayer = () => {
     <>
       {sourceUrl && (
         <Box
-          onClick={() => dispatch(setPlaying(!playing))}
           onMouseEnter={showControls}
           onMouseLeave={hideControls}
           onMouseMove={() => (moved.current = true)}
@@ -140,7 +148,7 @@ const sync = () => {
 };
 
 const isTouchDevice = () => {
-  return "ontouchstart" in window || (navigator as any).msMaxTouchPoints > 0 || navigator.maxTouchPoints > 0;
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
 };
 
 const VideoControls = () => {
@@ -155,11 +163,13 @@ const VideoControls = () => {
     if (!season) {
       return;
     }
-    return season.episodes.find((episode) => episode.index === currentEpisode?.index ?? 0 + offset);
+    return season.episodes.find((episode) => episode.index === (currentEpisode?.index ?? 0) + offset);
   };
 
   const previousEpisode: v1.Episode | null = (currentEpisode && currentCollection && findEpisode(-1)) ?? null;
   const nextEpisode: v1.Episode | null = (currentEpisode && currentCollection && findEpisode(1)) ?? null;
+
+  console.log(previousEpisode, nextEpisode);
 
   const unmute = () => dispatch(setMuted(false));
 
@@ -217,38 +227,21 @@ const LeftControlContainer = ({
   const duration = useAppSelector((state) => state.player.duration);
   const time = useAppSelector((state) => state.player.time);
   const playing = useAppSelector((state) => state.player.playing);
-  const selectedEpisode = useAppSelector((state) => state.content.episode);
   const dispatch = useAppDispatch();
 
   const parseTime = (time: number) => {
     return `${Math.floor(time / 60)}:${time % 60 < 10 ? "0" : ""}${Math.floor(time % 60)}`;
   };
 
-  const playPrevious = () => {
-    dispatch(
-      setEpisode({
-        playlist: selectedEpisode.playlist,
-        language: selectedEpisode.language,
-        season: selectedEpisode.season,
-        key: previousEpisode.id,
-        name: previousEpisode.name
-      })
-    );
+  const playPrevious = (previousEpisode: v1.Episode) => {
+    dispatch(setCurrentEpisode(previousEpisode));
     dispatch(setTime(0));
     dispatch(setPlaying(true));
     sync();
   };
 
-  const playNext = () => {
-    dispatch(
-      setEpisode({
-        playlist: selectedEpisode.playlist,
-        language: selectedEpisode.language,
-        season: selectedEpisode.season,
-        key: nextEpisode.id,
-        name: nextEpisode.name
-      })
-    );
+  const playNext = (nextEpisode: v1.Episode) => {
+    dispatch(setCurrentEpisode(nextEpisode));
     dispatch(setTime(0));
     dispatch(setPlaying(true));
     sync();
@@ -265,7 +258,7 @@ const LeftControlContainer = ({
       }}
     >
       {previousEpisode && (
-        <Button onClick={playPrevious}>
+        <Button onClick={() => playPrevious(previousEpisode)}>
           <SkipPreviousIcon />
         </Button>
       )}
@@ -289,7 +282,7 @@ const LeftControlContainer = ({
         </Button>
       )}
       {nextEpisode && (
-        <Button onClick={playNext}>
+        <Button onClick={() => playNext(nextEpisode)}>
           <SkipNextIcon />
         </Button>
       )}

@@ -123,7 +123,6 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
   const seasonId: string | null = useAppSelector((state) => state.content.season);
   const currentEpisode: v1.Episode | undefined | null = useAppSelector((state) => state.content.episode);
   const currentSource: v1.Source | undefined | null = useAppSelector((state) => state.content.source);
-  const sourceUrl: string | undefined | null = useAppSelector((state) => state.content.sourceUrl);
   const preferredLanguage: v1.Language | null = useAppSelector((state) => state.content.preferredLanguage);
   const [season, setSeason] = useState<v1.Season | undefined>();
   const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
