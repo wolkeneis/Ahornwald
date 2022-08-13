@@ -72,7 +72,7 @@ const VideoPlayer = () => {
     dispatch(setDuration(0));
     dispatch(setTimePercent(0));
     dispatch(setBuffered(0));
-    dispatch(setPlaying(false));
+    dispatch(setPlaying(true));
   }, [sourceUrl]);
 
   const showControls = () => {
@@ -118,6 +118,7 @@ const VideoPlayer = () => {
     <>
       {sourceUrl && (
         <Box
+          id="video-player"
           onMouseEnter={showControls}
           onMouseLeave={hideControls}
           onMouseMove={() => (moved.current = true)}
@@ -304,12 +305,12 @@ const RightControlContainer = () => {
       }}
     >
       <VolumeChanger />
-      {document.fullscreenElement === document.getElementById("video-wrapper") ? (
+      {document.fullscreenElement === document.getElementById("video-player") ? (
         <Button onClick={() => document.exitFullscreen()}>
           <FullscreenExitIcon />
         </Button>
       ) : (
-        <Button onClick={() => document.getElementById("video-wrapper")?.requestFullscreen()}>
+        <Button onClick={() => document.getElementById("video-player")?.requestFullscreen()}>
           <FullscreenIcon />
         </Button>
       )}
