@@ -1,11 +1,34 @@
-import { Box, CircularProgress, MenuItem, Paper, Select, Typography } from "@mui/material";
+import LanguageIcon from "@mui/icons-material/Language";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PlayDisabledIcon from "@mui/icons-material/PlayDisabled";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Select,
+  Tooltip,
+  Typography
+} from "@mui/material";
 import { v1 } from "moos-api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchCollection } from "../../logic/api";
-import { setCurrentCollection, setCurrentSeason } from "../../redux/contentSlice";
+import { fetchCollection, fetchSource } from "../../logic/api";
+import {
+  setCurrentCollection,
+  setCurrentEpisode,
+  setCurrentSeason,
+  setCurrentSource,
+  setSourceUrl
+} from "../../redux/contentSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import LoginRequired from "../LoginRequired";
+import VideoPlayer from "./player/VideoPlayer";
 
 const sorter = (firstSeason: v1.Season | null, secondSeason: v1.Season | null) => {
   const a = (firstSeason?.index ?? 0) - 1;
@@ -31,13 +54,25 @@ const seasonNameOf = (index: number) => {
   }
 };
 
+const languageNameOf = (language: v1.Language) => {
+  switch (language) {
+    case "de_DE":
+      return "German";
+    case "en_EN":
+      return "English";
+    case "ja_JP":
+      return "Japanese";
+    case "zh_CN":
+      return "Chinese";
+  }
+};
+
 const Home = () => {
   const hash = useLocation().hash.substring(1);
   const collectionPreviews: {
     [key: string]: v1.CollectionPreview[];
   } = useAppSelector((state) => state.content.collections);
   const collection: v1.Collection | undefined | null = useAppSelector((state) => state.content.collection);
-  const seasonId: string = useAppSelector((state) => state.content.season);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -64,47 +99,172 @@ const Home = () => {
       const seasons = collection.seasons.filter((season) => !!season);
       if (seasons.length > 0) {
         seasons.sort(sorter);
-        console.log(`collection default ${collection.name}`);
         dispatch(setCurrentSeason(seasons[0]?.id));
       }
     }
   }, [collection]);
 
   return collection ? (
-    <Paper sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Paper
-        elevation={6}
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: 2
-        }}
-      >
-        <Typography variant="h5">{collection.name}</Typography>
-        {collection &&
-          !!seasonId &&
-          collection.seasons.find((season) => season.id === seasonId) &&
-          !!collection.seasons
-            .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
-            .filter((season) => !!season.name).length && (
-            <Select onChange={(event) => dispatch(setCurrentSeason(event.target.value))} value={seasonId}>
-              {[...collection.seasons]
-                .sort(sorter)
-                .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
-                .filter((season) => !!season.name)
-                .map((season) => (
-                  <MenuItem key={season.id} value={season.id}>
-                    {season.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          )}
-      </Paper>
-    </Paper>
+    <Collection collection={collection} />
   ) : (
-    <Collections />
+    <>
+      {collection === null ? (
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <CircularProgress />{" "}
+        </Box>
+      ) : (
+        <Collections />
+      )}
+    </>
+  );
+};
+
+const Collection = ({ collection }: { collection: v1.Collection }) => {
+  const seasonId: string | null = useAppSelector((state) => state.content.season);
+  const currentEpisode: v1.Episode | undefined | null = useAppSelector((state) => state.content.episode);
+  const currentSource: v1.Source | undefined | null = useAppSelector((state) => state.content.source);
+  const preferredLanguage: v1.Language | null = useAppSelector((state) => state.content.preferredLanguage);
+  const [season, setSeason] = useState<v1.Season | undefined>();
+  const drawerOpen: boolean = useAppSelector((state) => state.interface.drawerOpen);
+  const drawerWidth: number = useAppSelector((state) => state.interface.drawerWidth);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (seasonId) {
+      setSeason(collection?.seasons.find((season) => season.id === seasonId));
+    }
+  }, [collection, seasonId]);
+
+  useEffect(() => {
+    if (currentEpisode) {
+      dispatch(
+        setCurrentSource(
+          currentEpisode.sources.find((source) => source.language === preferredLanguage) ??
+            currentEpisode.sources[0] ??
+            undefined
+        )
+      );
+    } else {
+      dispatch(setCurrentSource(undefined));
+    }
+    return () => {
+      dispatch(setCurrentSource(undefined));
+    };
+  }, [currentEpisode]);
+
+  useEffect(() => {
+    if (currentSource) {
+      fetchSource({ id: currentSource.id })
+        .then((fetchedSource) => dispatch(setSourceUrl(fetchedSource?.url ?? null)))
+        .catch(() => dispatch(setSourceUrl(null)));
+    } else {
+      dispatch(setSourceUrl(null));
+    }
+    return () => {
+      dispatch(setSourceUrl(undefined));
+    };
+  }, [currentSource]);
+
+  const selectEpisode = (episode: v1.Episode) => {
+    dispatch(setCurrentEpisode(episode));
+  };
+
+  return (
+    <>
+      <VideoPlayer />
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "stretch" }}>
+        <Paper
+          elevation={6}
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: 2
+          }}
+        >
+          <Typography variant="h5">{collection.name}</Typography>
+          {!!season &&
+            !!collection.seasons
+              .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
+              .filter((season) => !!season.name).length && (
+              <Select onChange={(event) => dispatch(setCurrentSeason(event.target.value))} value={seasonId}>
+                {[...collection.seasons]
+                  .sort(sorter)
+                  .map((season) => ({ name: seasonNameOf(season?.index ?? -1), ...season }))
+                  .filter((season) => !!season.name)
+                  .map((season) => (
+                    <MenuItem key={season.id} value={season.id}>
+                      {season.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            )}
+        </Paper>
+        {!!season && (
+          <Paper sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Box>
+              <List component="div">
+                {season.episodes.map((episode) => (
+                  <ListItem
+                    component="div"
+                    disabled={!episode.sources.length}
+                    key={episode.id}
+                    sx={{ minWidth: "20vw", gap: 1 }}
+                  >
+                    <ListItemIcon>
+                      <Button onClick={() => selectEpisode(episode)}>
+                        {episode.sources.length ? <PlayArrowIcon /> : <PlayDisabledIcon />}
+                      </Button>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={season.index > 0 ? `${episode.index}. Episode` : episode.name}
+                      primaryTypographyProps={{
+                        sx: {
+                          maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis"
+                        }
+                      }}
+                      secondary={season.index > 0 ? episode.name : undefined}
+                      secondaryTypographyProps={{
+                        sx: {
+                          maxWidth: `calc(80% ${drawerOpen ? drawerWidth : 0}px`,
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis"
+                        }
+                      }}
+                      title={episode.name}
+                    />
+                    <Tooltip title={<LanguageTooltip episode={episode} />}>
+                      <ListItemIcon>
+                        <LanguageIcon sx={{ cursor: "pointer" }} />
+                      </ListItemIcon>
+                    </Tooltip>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Paper>
+        )}
+      </Box>
+    </>
+  );
+};
+
+const LanguageTooltip = ({ episode }: { episode: v1.Episode }) => {
+  return (
+    <>
+      {episode.sources.map((source) => (
+        <Typography key={`${source.language}:${source.subtitles}`} variant="body2">
+          {source.subtitles
+            ? `${languageNameOf(source.language)}, [${languageNameOf(source.subtitles)}]`
+            : `${languageNameOf(source.language)}`}
+        </Typography>
+      ))}
+    </>
   );
 };
 

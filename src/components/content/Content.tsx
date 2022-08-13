@@ -39,7 +39,7 @@ const Content = () => {
           <Route element={<Home />} path="/" />
           <Route element={<Friends />} path="/friends" />
         </Routes>
-        <HeaderSpacer />
+        <FooterSpacer />
       </Main>
     </>
   );
@@ -77,6 +77,10 @@ const HeaderSpacer = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
   justifyContent: "flex-end"
+}));
+
+const FooterSpacer = styled("div")(({ theme }) => ({
+  padding: theme.spacing(1.5, 0)
 }));
 
 export default Content;
