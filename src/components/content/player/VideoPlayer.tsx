@@ -245,7 +245,7 @@ const LeftControlContainer = ({
   return (
     <Box
       sx={{
-        padding: 1,
+        padding: 0.5,
         gap: 0.25,
         display: "flex",
         flexDirection: "row",
@@ -388,15 +388,17 @@ const Timeline = () => {
   };
 
   return (
-    <Slider
-      aria-label="Volume"
-      max={1}
-      min={0}
-      onChange={(_event, value) => onSeek(value as number)}
-      size="small"
-      step={0.0001}
-      value={playedPercent}
-    />
+    <Box sx={{ marginX: 2 }}>
+      <Slider
+        aria-label="Volume"
+        max={1}
+        min={0}
+        onChange={(_event, value) => onSeek(value as number)}
+        size="small"
+        step={0.0001}
+        value={playedPercent}
+      />
+    </Box>
   );
 };
 
