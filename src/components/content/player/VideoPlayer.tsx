@@ -144,10 +144,6 @@ const VideoPlayer = () => {
   );
 };
 
-const sync = () => {
-  console.log("Wald");
-};
-
 const isTouchDevice = () => {
   return "ontouchstart" in window || navigator.maxTouchPoints > 0;
 };
@@ -238,14 +234,12 @@ const LeftControlContainer = ({
     dispatch(setCurrentEpisode(previousEpisode));
     dispatch(setTime(0));
     dispatch(setPlaying(true));
-    sync();
   };
 
   const playNext = (nextEpisode: v1.Episode) => {
     dispatch(setCurrentEpisode(nextEpisode));
     dispatch(setTime(0));
     dispatch(setPlaying(true));
-    sync();
   };
 
   return (
@@ -264,21 +258,11 @@ const LeftControlContainer = ({
         </Button>
       )}
       {playing ? (
-        <Button
-          onClick={() => {
-            dispatch(setPlaying(false));
-            sync();
-          }}
-        >
+        <Button onClick={() => dispatch(setPlaying(false))}>
           <PauseIcon />
         </Button>
       ) : (
-        <Button
-          onClick={() => {
-            dispatch(setPlaying(true));
-            sync();
-          }}
-        >
+        <Button onClick={() => dispatch(setPlaying(true))}>
           <PlayArrowIcon />
         </Button>
       )}
