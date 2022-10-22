@@ -166,8 +166,6 @@ const VideoControls = () => {
   const previousEpisode: v1.Episode | null = (currentEpisode && currentCollection && findEpisode(-1)) ?? null;
   const nextEpisode: v1.Episode | null = (currentEpisode && currentCollection && findEpisode(1)) ?? null;
 
-  console.log(previousEpisode, nextEpisode);
-
   const unmute = () => dispatch(setMuted(false));
 
   return (

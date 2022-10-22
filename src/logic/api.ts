@@ -334,7 +334,7 @@ async function _csrfFetch(
   const response = await _fetch(endpoint, parameters, body, {
     ...init,
     headers: {
-      "CSRF-Token": token ?? "",
+      "x-csrf-token": token ?? "",
       ...init?.headers
     }
   });
