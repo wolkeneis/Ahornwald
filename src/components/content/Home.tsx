@@ -172,7 +172,17 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
   return (
     <>
       <VideoPlayer />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "stretch" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          alignItems: "stretch",
+          maxWidth: 800,
+          minWidth: "25vw",
+          margin: "auto"
+        }}
+      >
         <Paper
           elevation={6}
           sx={{
@@ -202,7 +212,7 @@ const Collection = ({ collection }: { collection: v1.Collection }) => {
             )}
         </Paper>
         {!!season && (
-          <Paper sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Paper sx={{ display: "flex", flexDirection: "column", alignItems: "stretch" }}>
             <Box>
               <List component="div">
                 {season.episodes.map((episode) => (
